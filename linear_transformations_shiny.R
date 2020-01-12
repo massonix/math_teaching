@@ -1,17 +1,3 @@
-# Install packages if not done yet
-if (!requireNamespace("ggplot2", quietly = TRUE))
-  install.packages("ggplot2")
-if (!requireNamespace("purrr", quietly = TRUE))
-  install.packages("purrr")
-if (!requireNamespace("stringr", quietly = TRUE))
-  install.packages("stringr")
-if (!requireNamespace("ggpubr", quietly = TRUE))
-  install.packages("ggpubr")
-if (!requireNamespace("shiny", quietly = TRUE))
-  install.packages("shiny")
-if (!requireNamespace("shinyMatrix", quietly = TRUE))
-  install.packages("shinyMatrix")
-
 # Load packages
 library(ggplot2)
 library(ggpubr)
@@ -45,16 +31,16 @@ ui <- fluidPage(
         copy = TRUE,
         paste = TRUE
       )
-  ),
+    ),
     mainPanel(
-      plotOutput("transform_plot")
+      plotlyOutput("transform_plot")
     )
   )
 )
 
 # Define server function
 server <- function(input, output, session) {
-  output$transform_plot <- renderPlot({
+  output$transform_plot <- renderPlotly({
     A <- input$transform_mat
     v <- input$transform_vec
     b1 <- matrix(c(1, 0), nrow = 2, ncol = 1, byrow = TRUE)
@@ -76,23 +62,17 @@ server <- function(input, output, session) {
         y = c(l[[1]][2, 1], l[[2]][2, 1], l[[3]][2, 1]),
         type = c("basis", "basis", "vector")
       )
-      p <- ggplot(df) +
-        geom_segment(aes(x = 0, y = 0, xend = x, yend = y, color = type), 
-                     arrow = arrow(length = unit(0.5, "cm"))) +
-        scale_x_continuous(limits = c(-5, 5), breaks = seq(from = -5, to = 5, by = 1)) +
-        scale_y_continuous(limits = c(-5, 5), breaks = seq(from = -5, to = 5, by = 1)) +
-        scale_color_manual("", values = c("black", "red")) +
-        ggtitle(str_to_title(title)) +
-        theme_minimal() +
-        theme(plot.title = element_text(size = 14, hjust = 0.5, face = "bold"))
+      p <- df %>% 
+        plot_ly(x = ~x, y = ~y, color = ~type) %>% 
+        add_segments(x = 0, y = 0, xend = ~x, yend = ~y, colors = c("black", "red")) %>%
+        layout(title = str_to_title(title))
       p
     })
-    ggarrange(
-      plotlist = plots, 
-      ncol = 2, 
-      common.legend = TRUE, 
-      hjust = -4.5,
-      vjust = 0.5
+    subplot(
+      plots$input, 
+      plots$output, 
+      nrows = 1, 
+      shareX = TRUE, shareY = TRUE
     )
   })
 }
