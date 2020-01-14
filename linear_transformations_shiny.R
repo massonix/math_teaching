@@ -13,9 +13,15 @@ ui <- fluidPage(
   ),
   sidebarLayout(
     sidebarPanel(
+      radioButtons(
+        "dimension", 
+        label = "Choose number of dimensions", 
+        choices = c("2D", "3D"), 
+        selected = 2
+      ),
       matrixInput(
-        "transform_vec",
-        value = matrix(c(1, 1), nrow = 2, ncol = 1, byrow = FALSE),
+        "transform_mat",
+        value = matrix(c(1, 0, 0, 1), nrow = 2, ncol = 2, byrow = FALSE),
         rows = list(names = FALSE),
         cols = list(names = FALSE),
         class = "numeric",
@@ -23,8 +29,8 @@ ui <- fluidPage(
         paste = TRUE
       ),
       matrixInput(
-        "transform_mat",
-        value = matrix(c(1, 0, 0, 1), nrow = 2, ncol = 2, byrow = FALSE),
+        "transform_vec",
+        value = matrix(c(1, 1), nrow = 2, ncol = 1, byrow = FALSE),
         rows = list(names = FALSE),
         cols = list(names = FALSE),
         class = "numeric",
@@ -40,6 +46,26 @@ ui <- fluidPage(
 
 # Define server function
 server <- function(input, output, session) {
+  observeEvent(input$dimension, {
+    mat_options <- list(
+      "2D" = matrix(c(1, 0, 0, 1), nrow = 2, ncol = 2, byrow = FALSE),
+      "3D" = matrix(c(1, 0, 0, 0, 1, 0, 0, 0, 1), nrow = 3, ncol = 3, byrow = FALSE)
+    )
+    vec_options <- list(
+      "2D" = matrix(c(1, 1), nrow = 2, ncol = 1, byrow = FALSE),
+      "3D" = matrix(c(1, 1, 1), nrow = 3, ncol = 1, byrow = FALSE)
+    )
+    updateMatrixInput(
+      session, 
+      "transform_mat", 
+      value = mat_options[[input$dimension]]
+    )
+    updateMatrixInput(
+      session, 
+      "transform_vec",
+      value = vec_options[[input$dimension]]
+    )
+  })
   output$transform_plot <- renderPlotly({
     A <- input$transform_mat
     v <- input$transform_vec
@@ -52,10 +78,6 @@ server <- function(input, output, session) {
       input = list(b1, b2, v),
       output = list(b1_tr, b2_tr, u)
     )
-    # max_x <- max(map_dbl(c(iterable$input, iterable$output), 1)) + 1
-    # max_y <- max(map_dbl(c(iterable$input, iterable$output), 2)) + 1
-    # breaks_x <- round(seq(from = -max_x, to = max_x, length.out = 10))
-    # breaks_y <- round(seq(from = -max_y, to = max_y, length.out = 10))
     plots <- map2(iterable, names(iterable), function(l, title) {
       df <- data.frame(
         x = c(l[[1]][1, 1], l[[2]][1, 1], l[[3]][1, 1]), 
