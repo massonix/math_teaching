@@ -1,36 +1,52 @@
+# Install packages if not done yet
+if (!requireNamespace("plotly", quietly = TRUE))
+  install.packages("plotly")
+if (!requireNamespace("purrr", quietly = TRUE))
+  install.packages("purrr")
+if (!requireNamespace("dplyr", quietly = TRUE))
+  install.packages("dplyr")
+if (!requireNamespace("stringr", quietly = TRUE))
+  install.packages("stringr")
+if (!requireNamespace("shiny", quietly = TRUE))
+  install.packages("shiny")
+if (!requireNamespace("shinythemes", quietly = TRUE))
+  install.packages("shinythemes")
+if (!requireNamespace("shinyMatrix", quietly = TRUE))
+  install.packages("shinyMatrix")
+
 # Load packages
-library(ggplot2)
-library(ggpubr)
+library(plotly)
 library(purrr)
+library(dplyr)
 library(stringr)
 library(shiny)
+library(shinythemes)
 library(shinyMatrix)
+library(xtable)
+
+# Source script
+setwd(dir = dirname(rstudioapi::getSourceEditorContext()$path))
+source("utils.R")
 
 # Create user interface
 ui <- fluidPage(
+  theme = shinytheme("cerulean"),
   titlePanel(
     headerPanel("Linear Transformations")
   ),
+  withMathJax(),
   sidebarLayout(
     sidebarPanel(
       radioButtons(
         "dimension", 
         label = "Choose number of dimensions", 
         choices = c("2D", "3D"), 
-        selected = 2
+        selected = "2D"
       ),
       matrixInput(
         "transform_mat",
+        label = "Input the transformation matrix",
         value = matrix(c(1, 0, 0, 1), nrow = 2, ncol = 2, byrow = FALSE),
-        rows = list(names = FALSE),
-        cols = list(names = FALSE),
-        class = "numeric",
-        copy = TRUE,
-        paste = TRUE
-      ),
-      matrixInput(
-        "transform_vec",
-        value = matrix(c(1, 1), nrow = 2, ncol = 1, byrow = FALSE),
         rows = list(names = FALSE),
         cols = list(names = FALSE),
         class = "numeric",
@@ -39,7 +55,14 @@ ui <- fluidPage(
       )
     ),
     mainPanel(
-      plotlyOutput("transform_plot")
+      tabsetPanel(
+        type = "tabs",
+        tabPanel("Plot",  plotlyOutput("plot")),
+        tabPanel("Determinant", uiOutput("determinant")),
+        tabPanel("Inverse Matrix", uiOutput("inverse_matrix")),
+        tabPanel("Column Space", uiOutput("column_space")),
+        tabPanel("Null Space", uiOutput("null_space"))
+      )
     )
   )
 )
@@ -51,50 +74,23 @@ server <- function(input, output, session) {
       "2D" = matrix(c(1, 0, 0, 1), nrow = 2, ncol = 2, byrow = FALSE),
       "3D" = matrix(c(1, 0, 0, 0, 1, 0, 0, 0, 1), nrow = 3, ncol = 3, byrow = FALSE)
     )
-    vec_options <- list(
-      "2D" = matrix(c(1, 1), nrow = 2, ncol = 1, byrow = FALSE),
-      "3D" = matrix(c(1, 1, 1), nrow = 3, ncol = 1, byrow = FALSE)
-    )
     updateMatrixInput(
       session, 
       "transform_mat", 
       value = mat_options[[input$dimension]]
     )
-    updateMatrixInput(
-      session, 
-      "transform_vec",
-      value = vec_options[[input$dimension]]
-    )
   })
-  output$transform_plot <- renderPlotly({
-    A <- input$transform_mat
-    v <- input$transform_vec
-    b1 <- matrix(c(1, 0), nrow = 2, ncol = 1, byrow = TRUE)
-    b2 <- matrix(c(0, 1), nrow = 2, ncol = 1, byrow = TRUE)
-    u <- A %*% v
-    b1_tr <- A %*% b1
-    b2_tr <- A %*% b2
-    iterable <- list(
-      input = list(b1, b2, v),
-      output = list(b1_tr, b2_tr, u)
-    )
-    plots <- map2(iterable, names(iterable), function(l, title) {
-      df <- data.frame(
-        x = c(l[[1]][1, 1], l[[2]][1, 1], l[[3]][1, 1]), 
-        y = c(l[[1]][2, 1], l[[2]][2, 1], l[[3]][2, 1]),
-        type = c("basis", "basis", "vector")
-      )
-      p <- df %>% 
-        plot_ly(x = ~x, y = ~y, color = ~type) %>% 
-        add_segments(x = 0, y = 0, xend = ~x, yend = ~y, colors = c("black", "red")) %>%
-        layout(title = str_to_title(title))
-      p
-    })
-    subplot(
-      plots$input, 
-      plots$output, 
-      nrows = 1, 
-      shareX = TRUE, shareY = TRUE
+  output$plot <- renderPlotly({
+    if (input$dimension == "2D") {
+      plots <- plot_2d(input$transform_mat)
+    } else {
+      plots <- plot_3d(input$transform_mat)
+    }
+    plots
+  })
+  output$determinant <- renderUI({
+    withMathJax(
+      helpText("$$\\begin{bmatrix}\n 1 & 0 & 0 \\\\ \n 0 & 1 & 0 \\\\ \n 0 & 0 & 1 \\\\ \n \\end{bmatrix}$$")
     )
   })
 }
