@@ -147,15 +147,69 @@ matrix2latex <- function(matr) {
 }
 
 
-matrix2latex <- function(x, digits=NULL, ...) {
-  default_args = list(include.colnames=FALSE, only.contents=TRUE,
-                      include.rownames=FALSE, hline.after=NULL, comment=FALSE,
-                      print.results=FALSE)
-  passed_args = list(...)
-  calling_args = c(list(x=xtable(x, digits=digits)),
-                   c(passed_args,
-                     default_args[setdiff(names(default_args), names(passed_args))]))
-  cat("$$\\begin{bmatrix}\n",
-      do.call(print.xtable, calling_args),
-      "\\$$end{bmatrix}\n")
+matrix2latex <- function(mat) {
+  header <- "\\begin{bmatrix}\n "
+  latex_mat <- ""
+  for (i in 1:nrow(mat)) {
+    for (j in 1:ncol(mat)) {
+      if (j != ncol(mat)) {
+        latex_mat <- str_c(latex_mat, mat[i,j]," & ")
+      } else {
+        latex_mat <- str_c(latex_mat, mat[i,j], " \\\\ \n ")
+      }
+    }
+  }
+  ending <- "\\end{bmatrix}"
+  string <- str_c(header, latex_mat, ending, sep = "")
+  string
 }
+
+det2latex <- function(mat) {
+  header <- "\\begin{vmatrix}\n "
+  latex_mat <- ""
+  for (i in 1:nrow(mat)) {
+    for (j in 1:ncol(mat)) {
+      if (j != ncol(mat)) {
+        latex_mat <- str_c(latex_mat, mat[i,j]," & ")
+      } else {
+        latex_mat <- str_c(latex_mat, mat[i,j], " \\\\ \n ")
+      }
+    }
+  }
+  ending <- "\\end{vmatrix}"
+  string <- str_c(header, latex_mat, ending, sep = "")
+  string
+}
+
+write_determinant <- function(mat, dimension = "2D") {
+  beginning <- "$$det(A)="
+  det_latex <- det2latex(mat)
+  if (dimension == "2D") {
+    computation <- str_c(
+      as.character(mat[1, 1]), 
+      "\\cdot", 
+      as.character(mat[2, 2]), 
+      "-", 
+      as.character(mat[1, 2]), 
+      "\\cdot", 
+      as.character(mat[2, 1]),
+      sep = ""
+    )
+  } else {
+    computation <- str_c(   
+    as.character(mat[1, 1]), "\\cdot", as.character(mat[2, 2]), "\\cdot", as.character(mat[3, 3]), "+",
+    as.character(mat[1, 2]), "\\cdot", as.character(mat[2, 3]), "\\cdot", as.character(mat[3, 1]), "+",
+    as.character(mat[1, 3]), "\\cdot", as.character(mat[2, 1]), "\\cdot", as.character(mat[3, 2]), "-",
+    as.character(mat[1, 3]), "\\cdot", as.character(mat[2, 2]), "\\cdot", as.character(mat[3, 1]), "-",
+    as.character(mat[1, 1]), "\\cdot", as.character(mat[2, 3]), "\\cdot", as.character(mat[3, 2]), "-",
+    as.character(mat[1, 2]), "\\cdot", as.character(mat[2, 1]), "\\cdot", as.character(mat[3, 3]),
+    sep = ""
+    )
+  }
+  det_result <- det(mat)
+  ending <- "$$"
+  string <- str_c(beginning, det_latex, "=", computation, "=", det_result, ending, sep = "")
+  string
+}
+
+

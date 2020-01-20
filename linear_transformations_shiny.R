@@ -58,10 +58,9 @@ ui <- fluidPage(
       tabsetPanel(
         type = "tabs",
         tabPanel("Plot",  plotlyOutput("plot")),
+        tabPanel("Null Space", uiOutput("null_space")),
         tabPanel("Determinant", uiOutput("determinant")),
-        tabPanel("Inverse Matrix", uiOutput("inverse_matrix")),
-        tabPanel("Column Space", uiOutput("column_space")),
-        tabPanel("Null Space", uiOutput("null_space"))
+        tabPanel("Inverse Matrix", uiOutput("inverse_matrix"))
       )
     )
   )
@@ -90,10 +89,11 @@ server <- function(input, output, session) {
   })
   output$determinant <- renderUI({
     withMathJax(
-      helpText("$$\\begin{bmatrix}\n 1 & 0 & 0 \\\\ \n 0 & 1 & 0 \\\\ \n 0 & 0 & 1 \\\\ \n \\end{bmatrix}$$")
+      helpText(write_determinant(input$transform_mat, dimension = input$dimension))
     )
   })
 }
 
 # Run shiny application
 shinyApp(ui, server)
+
