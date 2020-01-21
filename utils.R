@@ -81,6 +81,9 @@ plot_3d <- function(transformation_matrix) {
   output_df <- as.data.frame(t(output_matrix))
   colnames(output_df) <- c("x", "y", "z")
   df <- bind_rows(list(input = input_df, output = output_df), .id = "status")
+  cols <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", 
+            "#D55E00", "#CC79A7")
+  df$color <- rep(cols, 2)
   min_coordinate <- min(min(input_matrix), min(output_matrix))
   max_coordinate <- max(max(input_matrix), max(output_matrix))
   if (abs(min_coordinate) > abs(max_coordinate)) {
@@ -112,10 +115,10 @@ plot_3d <- function(transformation_matrix) {
           j = c(3, 4, 1, 2, 5, 6, 5, 2, 0, 1, 6, 3),
           k = c(0, 7, 2, 3, 6, 7, 1, 1, 5, 5, 7, 6),
           intensity = seq(0, 1, length = 8),
-          color = seq(0, 1, length = 8),
-          colors = colorRamp(rainbow(8)),
+          colors = "gray",
           showscale = FALSE
-        )
+        ) %>% 
+        add_markers(color = ~color, marker = list(color = cols, size = 10))
       if (type == "input") {
         p %>% 
           layout(scene = list(xaxis = axis_lim, yaxis = axis_lim, zaxis = axis_lim))
@@ -210,6 +213,26 @@ write_determinant <- function(mat, dimension = "2D") {
   ending <- "$$"
   string <- str_c(beginning, det_latex, "=", computation, "=", det_result, ending, sep = "")
   string
+}
+
+compute_null_space <- function(A) {
+  m <- dim(A)[1]; n <- dim(A)[2]
+  ## QR factorization and rank detection
+  QR <- base::qr.default(A)
+  r <- QR$rank
+  ## cases 2 to 4
+  if ((r < min(m, n)) || (m < n)) {
+    R <- QR$qr[1:r, , drop = FALSE]
+    P <- QR$pivot
+    F <- R[, (r + 1):n, drop = FALSE]
+    I <- base::diag(1, n - r)
+    B <- -1.0 * base::backsolve(R, F, r)
+    Y <- base::rbind(B, I)
+    X <- Y[base::order(P), , drop = FALSE]
+    return(X)
+  }
+  ## case 1
+  return(base::matrix(0, n, 1))
 }
 
 
