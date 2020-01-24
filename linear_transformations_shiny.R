@@ -58,9 +58,9 @@ ui <- fluidPage(
       tabsetPanel(
         type = "tabs",
         tabPanel("Plot",  plotlyOutput("plot")),
-        tabPanel("Null Space", uiOutput("null_space")),
+        tabPanel("Null Space", verbatimTextOutput("null_space"), plotlyOutput("null_space_plot")),
         tabPanel("Determinant", uiOutput("determinant")),
-        tabPanel("Inverse Matrix", uiOutput("inverse_matrix"))
+        tabPanel("Inverse Matrix", verbatimTextOutput("inverse_matrix"))
       )
     )
   )
@@ -92,8 +92,20 @@ server <- function(input, output, session) {
       helpText(write_determinant(input$transform_mat, dimension = input$dimension))
     )
   })
+  output$null_space <- renderPrint({ 
+    compute_null_space(input$transform_mat) 
+  })
+  output$null_space_plot <- renderPlotly({
+    if (input$dimension == "2D") {
+      plot_null_space_2d(input$transform_mat)
+    } else {
+      plot_null_space_3d(input$transform_mat)
+    }
+  })
+  output$inverse_matrix <- renderPrint({ 
+    find_inverse(input$transform_mat) 
+  })
 }
 
 # Run shiny application
 shinyApp(ui, server)
-

@@ -235,4 +235,92 @@ compute_null_space <- function(A) {
   return(base::matrix(0, n, 1))
 }
 
+plot_point_2d <- function(x) {
+  p <- plot_ly(x = x[1, 1], y = x[2, 1]) %>% 
+    add_markers()
+  p
+}
 
+plot_line_2d <- function(x) {
+  scalars <- seq(-1, 1, by = 0.05)
+  points <- map(scalars, function(k) as.vector(k * x))
+  points <- t(as.data.frame(points))
+  rownames(points) <- NULL
+  colnames(points) <- c("x", "y")
+  p <- as.data.frame(points) %>% 
+    plot_ly(x = ~x, y = ~y) %>% 
+    add_lines()
+  p
+}
+
+plot_point_3d <- function(x) {
+  df <- data.frame(x = x[1, 1], y = x[2, 1], z = x[3, 1])
+  p <- df %>% 
+    plot_ly(x = ~x, y = ~y, z = ~z) %>% 
+    add_markers()
+  p
+}
+
+plot_line_3d <- function(x) {
+  scalars <- seq(-1, 1, by = 0.01)
+  points <- map(scalars, function(k) k * x[, 1])
+  points <- t(as.data.frame(points))
+  rownames(points) <- NULL
+  colnames(points) <- c("x", "y", "z")
+  points <- rbind(points, data.frame(x = 0, y = 0, z = 0))
+  points <- as.data.frame(points)
+  p <- points %>%
+    plot_ly(x = ~x, y = ~y, z = ~z) %>% 
+    add_lines()
+  p
+}
+
+plot_plane_3d <- function(A) {
+  scalars <- seq(-1, 1, by = 0.05)
+  vectors <- vector("list", length = length(scalars) ** 2)
+  count <- 0
+  for (i in scalars) {
+    for(j in scalars) {
+      count <- count + 1
+      vectors[[count]] <- i * A[, 1] + j * A[, 2]
+    }
+  }
+  points <- t(as.data.frame(vectors))
+  rownames(points) <- NULL
+  colnames(points) <- c("x", "y", "z")
+  points <- rbind(points, data.frame(x = 0, y = 0, z = 0))
+  p <- points %>% 
+    plot_ly(x = ~x, y = ~y, z = ~z) %>% 
+    add_markers()
+  p
+}
+
+plot_null_space_2d <- function(A) {
+  null_space <- compute_null_space(A)
+  if (all(null_space == c(0, 0))) {
+    p <- plot_point_2d(null_space)
+  } else if (all(dim(null_space) == c(2, 1))) {
+    p <- plot_line_2d(null_space)
+  }
+  p
+}
+
+plot_null_space_3d <- function(A) {
+  null_space <- compute_null_space(A)
+  if (all(null_space == c(0, 0, 0))) {
+    p <- plot_point_3d(null_space)
+  } else if (all(dim(null_space) == c(3, 1))) {
+    p <- plot_line_3d(null_space)
+  } else if (all(dim(null_space) == c(3, 2))) {
+    p <- plot_plane_3d(null_space)
+  }
+  p
+}
+
+find_inverse <- function(A) {
+  if (det(A) == 0) {
+    "As the determinant is 0, the matrix is not invertible"
+  } else {
+    solve(A)
+  }
+}
