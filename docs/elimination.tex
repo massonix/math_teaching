@@ -1,0 +1,210 @@
+%-----------------------------------------------------------------------
+% Beginning of proc-l-template.tex
+%-----------------------------------------------------------------------
+%
+%     This is a topmatter template file for PROC for use with AMS-LaTeX.
+%
+%     Templates for various common text, math and figure elements are
+%     given following the \end{document} line.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%     Remove any commented or uncommented macros you do not use.
+
+\documentclass{proc-l}
+
+%     If you need symbols beyond the basic set, uncomment this command.
+%\usepackage{amssymb}
+
+%     If your article includes graphics, uncomment this command.
+%\usepackage{graphicx}
+
+%     If the article includes commutative diagrams, ...
+%\usepackage[cmtip,all]{xy}
+
+
+%     Update the information and uncomment if AMS is not the copyright
+%     holder.
+
+\copyrightinfo{2020}{}
+
+\newtheorem{theorem}{Theorem}[subsection]
+\newtheorem{lemma}[theorem]{Lemma}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{\bf Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{xca}[theorem]{Exercise}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\numberwithin{equation}{section}
+
+%aliases
+
+\newcommand{\comment}[1]{}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\rank}[1]{\textrm{rank}({#1})}
+\newcommand{\im}[1]{\textrm{Im}({#1})}
+\renewcommand{\ker}[1]{\textrm{ker}({#1})}
+
+
+
+\begin{document}
+
+% \title[short text for running head]{full title}
+\title{Understading linear maps with Gauss-Jordan elimination}
+
+%    Only \author and \address are required; other information is
+%    optional.  Remove any unused author tags.
+
+%    author one information
+% \author[short version for running head]{name for top of paper}
+\author{Ramon Massoni}
+\address{}
+\curraddr{}
+\email{}
+\thanks{}
+
+%    author two information
+\author{Ferran Mui\~nos}
+\address{}
+\curraddr{}
+\email{}
+\thanks{}
+
+%    \subjclass is required.
+%    \subjclass[2010]{Primary }
+
+%     \date{\today}
+
+%     \dedicatory{}
+
+%    "Communicated by" -- provide editor's name; required.
+%     \commby{}
+
+%    Abstract is required.
+\begin{abstract}
+We study some basic properties of linear maps by using column-wise Gauss-Jordan elimination.
+\end{abstract}
+
+\maketitle
+
+\section{Gauss-Jordan elimination}
+\subsection{}
+Given an $m\times n$ matrix $A$, we denote $f_A:\R^n\to\R^m$ the linear map defined by $A$ in coordinates of the canonical basis. We denote the space of matrices of shape $m\times n$ by $\R^m\times n$.
+
+\subsection{}
+For convenience we say that a pair of matrices $(A, B)$ where $A\in\R^{m\times n}$ and $B\in\R^{n\times n}$ is a (column-wise) Gauss-Jordan pair.
+
+\subsection{}
+Gauss-Jordan (column-wise) pairs intend to represent the steps in the Gauss-Jordan elimination procedure. The motivation is that each pair will represent the state of a Gauss-Jordan elimination $A$ is the matrix under study and $B$ keeps track of the column-wise elementary operations.
+
+\subsection{}
+Column-wise elementary operations can be of either of three kinds:
+\begin{enumerate}
+\item Permutation of columns.
+\item Replacing a column $c_i$ with $\lambda c_i$ with $\lambda \neq 0$.
+\item Replacing a column $c_i$ with $c_i + \mu c_j$ with $\mu$ any scalar.
+\end{enumerate}
+
+\subsection{}
+Column-wise elementary operation can be encoded as linear maps $\R^n \to \R^n$ (endomorphisms of $\R^n$). Hence we can encode such operations via matrix multiplication. In particular, we can encode in this way any composition of elementary operations by simply multiplying their respective matrices.
+
+\subsection{}
+Such operations are equivalent to injective linear maps, hence they preserve the rank.
+
+\subsection{}
+We can apply column-wise elementary operations on pairs as follows $(A, B) \mapsto (g(A), g(B))$.
+
+\subsection{}
+Whenever $(A, B)$ is taken to $(A', B')$ by column-wise elementary operations, we denote it as $(A, B) \sim (A', B')$.
+
+\subsection{}
+Column-wise Gauss-Jordan elimination is the method whereby the (column-wise) Gauss-Jordan pair $(A, I_n)$ is transformed into another pair $(T, B)$ with $T$ in upper-column-echelon form by means of iteratively applying a sequence of column-wise elementary operations. Hence $(A, I_n)\sim (T, B)$. Without loss of generality
+
+\subsection{}
+If $(A, I_n) \sim (T, B)$ then $T=AB$.
+\begin{proof}
+Let $E$ be the matrix encoding a given column-wise elementary operation on columns. Then if $(T, B)$ has been obtained from $(A, I_n)$ by applying such operation, then $T=AE$ and $B=I_n E$ whence the claim follows. The general case follows by induction.
+\end{proof}
+
+\subsection{}
+Observe that $\rank{B} = \rank{I_n} = n$.
+
+\subsection{}
+If $A$ is a square, full-rank matrix, then $(A, I_n) \sim (I_n, A^{-1})$.
+
+\subsection{}
+Let $(A, I_n) \sim (T, B)$, with $T$ in upper-column-echelon form. Let $B=[B_1 \ldots B_n]$. Then the last $n - \rank{A}$ columns of $T$ are zero, and $\ker{f_A}=\textrm{span}\left(B_j \;|\; j\in\{ \rank{A} + 1, \ldots, n\}\right)$. Since the columns of $B$ are linearly independent, then $\dim{\ker{f_A}} = n - \rank{A}$.
+
+\subsection{}
+The \rank{A} non-zero columns of $T$ form a basis of $\im{f_A}$, then $\dim{\im{f_A}} = \rank(A)$.
+
+\subsection{}
+The following important result follows from the discussion above. For any linear map $f_A:\R^n\to\R^m$ the following identity holds:
+\[
+\dim{\ker{f_A}} + \dim{\im{f_A}} = (n - \rank{A}) + \rank{A} = n.
+\]
+
+%    Text of article.
+
+%    Bibliographies can be prepared with BibTeX using amsplain,
+%    amsalpha, or (for "historical" overviews) natbib style.
+\bibliographystyle{amsplain}
+%    Insert the bibliography data here.
+
+\end{document}
+
+\comment{
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%    Templates for common elements of a journal article; for additional
+%    information, see the AMS-LaTeX instructions manual, instr-l.pdf,
+%    included in the PROC author package, and the amsthm user's guide,
+%    linked from http://www.ams.org/tex/amslatex.html .
+
+%    Section headings
+\section{}
+\subsection{}
+
+%    Ordinary theorem and proof
+\begin{theorem}[Optional addition to theorem head]
+% text of theorem
+\end{theorem}
+
+\begin{proof}[Optional replacement proof heading]
+% text of proof
+\end{proof}
+
+%    Figure insertion; default placement is top; if the figure occupies
+%    more than 75% of a page, the [p] option should be specified.
+\begin{figure}
+\includegraphics{filename}
+\caption{text of caption}
+\label{}
+\end{figure}
+
+%    Mathematical displays; for additional information, see the amsmath
+%    user's guide, linked from http://www.ams.org/tex/amslatex.html .
+
+% Numbered equation
+\begin{equation}
+\end{equation}
+
+% Unnumbered equation
+\begin{equation*}
+\end{equation*}
+
+% Aligned equations
+\begin{align}
+  &  \\
+  &
+\end{align}
+
+%-----------------------------------------------------------------------
+% End of proc-l-template.tex
+%-----------------------------------------------------------------------
+}
