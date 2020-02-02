@@ -98,37 +98,46 @@ We study some basic properties of linear maps by using column-wise Gauss-Jordan 
 Given an $m\x n$ matrix $A$, we denote $f_A:\R^n\to\R^m$ the linear map defined by $A$ in coordinates of the canonical basis. We denote $\R^{m \x n}$ the space of matrices of shape $m\x n$.
 
 \subsection{}
-We say that a pair of matrices $(A, B)$ where $A\in\R^{m\x n}$ and $B\in\R^{n\x n}$ is a (column-wise) Gauss-Jordan pair.
+We say that a column-wise Gauss-Jordan pair is a tuple of matrices $(A, B)$ where $A\in\R^{m\x n}$ and $B\in\R^{n\x n}$. Gauss-Jordan pairs are meant to represent the steps in the execution of Gauss-Jordan elimination.
 
 \subsection{}
-Our discussion is based entirely on column-wise operations, so we will implicitly assume elimination as being column-wise in this text. Likewise, matrix pairs can be defined column-wise and row-wise.
-
-\subsection{}
-Gauss-Jordan pairs are meant to represent the steps in the execution of Gauss-Jordan elimination.
-
-\subsection{}
-Column-wise elementary operations can be either of three kinds:
+Column-wise elementary operations can be of either of three kinds:
 \begin{enumerate}
-\item Permutating columns.
-\item Replacing a column $c_i$ with $\lambda c_i$ where $\lambda \neq 0$.
-\item Replacing a column $c_i$ with $c_i + \mu c_j$ where $\mu$ can be any scalar.
+\item Permutation of columns.
+\item Replacing a column $c_i$ with $\lambda c_i$ where $\lambda$ is a non-zero scalar.
+\item Replacing a column $c_i$ with $c_i + \mu c_j$ where $\mu$ is any scalar.
 \end{enumerate}
-We will generally denote the transform of a matrix $A$ by an elementary operation $e$ as $e(A)$.
+We denote $e(A)$ the transform of a matrix $A$ by an elementary operation $e$.
 
 \subsection{}
-Elementary operations are linear maps $\R^n \to \R^n$. We say that $E$ is the matrix representing the elementary operation $e$ if the transform matrix of $A$ can be written $e(A) = AE$ for all $A\in\R^{m\x n}$.
+Hereinafter our discussion will be based entirely on column-wise operations, so we will drop ``column-wise'' from our statements.
 
 \subsection{}
-Elementary operations are injective to injective linear maps $\R^n \to \R^n$, hence the transformation $A \mapsto AE$ preserves the rank.
+Elementary operations can be regarded as linear maps $\R^n \to \R^n$. We say that $E$ is the matrix representing the elementary operation $e$ whenever $e(A) = AE$ for all matrices $A\in\R^{m\x n}$.
 
 \subsection{}
-We can extend operations to Gauss-Jordan pairs as follows $(A, B) \mapsto (AE, BE)$.
+Elementary operations are injective as linear maps $\R^n \to \R^n$, hence $\rank{A} = \rank{e(A)} = \rank{AE}$, i.e., they preserve the rank.
 
 \subsection{}
-Whenever $(A, B)$ can be transformed into $(A', B')$ by applying a sequence of elementary operations, we denote it as $(A, B) \sim (A', B')$.
+We can extend elementary operations to Gauss-Jordan pairs as follows
+\[
+e: (A, B) \mapsto (e(A), e(B)) = (AE, BE)
+\]
 
 \subsection{}
-Column-wise Gauss-Jordan elimination is the method whereby the Gauss-Jordan pair $(A, I_n)$ is transformed into another pair $(L, B)$ with $L$ in lower (column) echelon form by means of applying a sequence of elementary operations. Following our notation: $(A, I_n)\sim (L, B)$. 
+We denote $(A, B) \sim (A', B')$ the fact that $(A, B)$ can be transformed into $(A', B')$ by applying a sequence of elementary operations.
+
+\subsection{}
+Gauss-Jordan elimination is the method whereby the pair $(A, I_n)$ is transformed, by means of applying a sequence of elementary operations, into a pair $(L, B)$ with $L$ in reduced lower column echelon form, which means the following:
+\begin{enumerate}
+\item $L$ is a lower column echelon matrix.
+\item The leading entries of $L$ are $1$.
+\item The leading entries of $L$ are the only non-zero entries in their row. 
+\end{enumerate}
+Following our notation: $(A, I_n)\sim (L, B)$. 
+
+\subsection{}
+Given an input $A$, Gauss-Jordan elimination leads to a unique matrix $L$ in reduced lower echelon form. We can stress this fact by defining a Gauss-Jordan transform $L: A\mapsto L(A)$ that takes $A$ to the unique reduced lower column echelon form reachable by Gauss-Jordan elimination.
 
 \subsection{}
 If $(A, I_n) \sim (L, B)$ then $L=AB$.
@@ -140,24 +149,27 @@ Let $E = E_1\cdots E_k$ the product of the matrices encoding the elementary oper
 Observe that $\rank{B} = \rank{I_n} = n$.
 
 \subsection{}
+Observe that if $A$ is a square, full-rank matrix, $L(A) = I_n$.
+
+\subsection{}
 If $A$ is a square, full-rank matrix, then $(A, I_n) \sim (I_n, A^{-1})$.
 \begin{proof}
-If $(A, I_n) \sim (I_n, B)$ for some matrix $B$, then we know that $I_n = AB$, so $B$ is the inverse of $A$.
+We know that $(A, I_n) \sim (I_n, B)$ for some matrix $B$. Then $I_n = AB$, so $B=A^{-1}$.
 \end{proof}
 
 \subsection{}
-For the next discussion, let $(A, I_n) \sim (L, B)$, with $L$ in lower echelon form. Let $B=[b_1 \ldots b_n]$ be the matrix $B$ specified by its columns $B_i$.
+For the next discussion, let $(A, I_n) \sim (L, B)$, with $L$ in reduced lower echelon form. Let $B=[b_1 \ldots b_n]$ be the matrix $B$ specified by its columns $b_i$.
 
 \subsection{}
-The rank of $A$ is precisely the number of non-zero columns in $L$: these are the generators of $\im{f_A}$. Since any subset of non-zero columns of $L$ is a linearly independent set, it follows that then $\dim\im{f_A} = \rank{A}$.
+The rank of $A$ is precisely the number of non-zero columns in $L$. Moreover, these columns are the generators of $\im{f_A}$. Since any subset of non-zero columns of $L$ is a linearly independent set, it follows that $\dim\im{f_A} = \rank{A}$.
 
 \subsection{}
-Likewise, the last $n - \rank{A}$ columns of $L$ are zero.
+Observe that the last $n - \rank{A}$ columns of $L$ are zero.
 
 \subsection{}
-The last $n - \rank{A}$ columns of $B$ form a basis of the null-space of $f_A$. 
+The last $n - \rank{A}$ columns of $B$ form a basis of the null-space $\ker{f_A}$. 
 \begin{proof}
-We already know the following:
+The following are known facts:
 \begin{enumerate}
 \item $b_1, \ldots, b_n$ is a basis of $\R^n$.
 \item $\{Ab_i\;|\; 1\leq i\leq \rank{A}\}$ is a linearly independent set.
@@ -166,7 +178,7 @@ We already know the following:
 S=\span{b_i\;|\; \rank{A} + 1\leq i \leq n} \} \subset \ker{f_A}.
 \]
 \end{enumerate}
-But there is no vector $v$ outside of $S$ with $v\in\ker{f_A}$. Let's reason by contradiction assuming there is one. Since $\{b_1,\ldots, b_n\}$ is a basis, we can write $v=\sum\lambda_i b_i$. Then $f_A (v) = 0 = \sum_{i\leq\rank{A}} \lambda_i Ab_i$, which is in contradiction with point (1). We conclude that $S=\ker{f_A}$.
+Let's check that $\ker{f_A} \subset S$. By (1) we can write any $v\in\ker{f_A}$ as $v=\sum\lambda_i b_i$. Using $v\in\ker{f_A}$ and (3), we have $0 = f_A (v) = \sum_{i\leq\rank{A}} \lambda_i Ab_i$. By (2) this cannot hold unless $\lambda_i = 0$ for $i=1,\ldots, \rank{A}$. Then $v\in S$.
 \end{proof}
 
 \subsection{}
