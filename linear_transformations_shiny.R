@@ -60,11 +60,19 @@ ui <- fluidPage(
         tabPanel("Plot",  plotlyOutput("plot")),
         tabPanel("Null Space", verbatimTextOutput("null_space"), plotlyOutput("null_space_plot")),
         tabPanel("Determinant", uiOutput("determinant")),
-        tabPanel("Inverse Matrix", verbatimTextOutput("inverse_matrix"))
+        tabPanel(
+          "Gauss-Jordan", 
+          tableOutput("gauss_matrix"), 
+          tableOutput("gauss_identity"), 
+          actionButton("rewind", "", icon = icon("fast-backward")),
+          actionButton("play", "", icon = icon("play")),
+          actionButton("advance", "", icon = icon("fast-forward"))
+        )
       )
     )
   )
 )
+
 
 # Define server function
 server <- function(input, output, session) {
@@ -102,9 +110,18 @@ server <- function(input, output, session) {
       plot_null_space_3d(input$transform_mat)
     }
   })
-  output$inverse_matrix <- renderPrint({ 
-    find_inverse(input$transform_mat) 
+  gauss_matrix <- reactive({
+    input$transform_matr
   })
+  gauss_matrix <- eventReactive(input$play, {
+    apply_gauss_jordan_3d(gauss_matrix()[[1]], diag(3))
+  })
+  output$gauss_matrix <- renderTable({
+    gauss_matrix()
+  }, colnames = FALSE)
+  output$gauss_identity <- renderTable({
+    diag(3)
+  }, colnames = FALSE)
 }
 
 # Run shiny application
