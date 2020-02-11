@@ -75,6 +75,7 @@ ui <- fluidPage(
 
 
 # Define server function
+mat_list <- list(matrix(), matrix())
 server <- function(input, output, session) {
   observeEvent(input$dimension, {
     mat_options <- list(
@@ -110,21 +111,50 @@ server <- function(input, output, session) {
       plot_null_space_3d(input$transform_mat)
     }
   })
-  mat_list <- reactive(
-    list(
+  observeEvent(input$transform_mat, {
+    mat_list <<- list(
       input$transform_mat,
-      diag(as.numeric(str_remove(input$dimension, "D")))
+      diag(nrow(input$transform_mat))
     )
-  )
-  mat_list <- eventReactive(input$play, {
-    apply_gauss_jordan_3d(mat_list()[[1]], mat_list()[[2]])
-  })  
-  output$gauss_matrix <- renderTable({
-    mat_list()[[1]]
-  }, colnames = FALSE)
-  output$gauss_identity <- renderTable({
-    mat_list()[[2]]
-  }, colnames = FALSE)
+    output$gauss_matrix <- renderTable({
+      mat_list[[1]]
+    }, colnames = FALSE)
+    output$gauss_identity <- renderTable({
+      mat_list[[2]]
+    }, colnames = FALSE)
+  })
+  observeEvent(input$play, {
+    mat_list <<- apply_gauss_jordan_3d(mat_list[[1]], mat_list[[2]])
+    output$gauss_matrix <- renderTable({
+      mat_list[[1]]
+    }, colnames = FALSE)
+    output$gauss_identity <- renderTable({
+      mat_list[[2]]
+    }, colnames = FALSE)
+  })
+  observeEvent(input$rewind, {
+    mat_list <<- list(
+      input$transform_mat,
+      diag(nrow(input$transform_mat))
+    )
+    output$gauss_matrix <- renderTable({
+      mat_list[[1]]
+    }, colnames = FALSE)
+    output$gauss_identity <- renderTable({
+      mat_list[[2]]
+    }, colnames = FALSE)
+  })
+  observeEvent(input$advance, {
+    while (any(mat_list[[1]] != apply_gauss_jordan_3d(mat_list[[1]], mat_list[[2]])[[1]])) {
+      mat_list <<- apply_gauss_jordan_3d(mat_list[[1]], mat_list[[2]])
+    }
+    output$gauss_matrix <- renderTable({
+      mat_list[[1]]
+    }, colnames = FALSE)
+    output$gauss_identity <- renderTable({
+      mat_list[[2]]
+    }, colnames = FALSE)
+  })
 }
 
 # Run shiny application
