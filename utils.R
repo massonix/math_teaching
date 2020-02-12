@@ -387,6 +387,40 @@ find_inverse <- function(A) {
 #   new_column <- (x_multiple * x) + (y_multiple * y)
 #   new_column
 # }
+apply_gauss_jordan_2d <- function(A, I) {
+  # From A --> L
+  if (A[1, 1] != 0 & A[1, 2] != 0) {
+    mults <- find_multiples(x = A[, 1], A[, 2], entry = 1)
+    A[, 2] <- combine_columns(x = A[, 1], y = A[, 2], x_m = mults["x"], y_m = mults["y"])
+    I[, 2] <- combine_columns(x = I[, 1], y = I[, 2], x_m = mults["x"], y_m = mults["y"])
+    output <- list(A = A, I = I)
+    return(output)
+  }
+  
+  # Force pivots = 1
+  pivots <- c(A[1, 1], A[2, 2])
+  for (i in 1:length(pivots)) {
+    if (pivots[i] != 1 & pivots[i] != 0) {
+      A[, i] <- A[, i] / pivots[i]
+      I[, i] <- I[, i] / pivots[i]
+      output <- list(A = A, I = I)
+      return(output)
+    }
+  }
+  
+  # From L --> R
+  if (A[2, 1] != 0 & A[2, 2]) {
+    mults <- find_multiples(x = A[, 2], A[, 1], entry = 2)
+    A[, 1] <- combine_columns(x = A[, 2], y = A[, 1], x_m = mults["x"], y_m = mults["y"])
+    I[, 1] <- combine_columns(x = I[, 2], y = I[, 1], x_m = mults["x"], y_m = mults["y"])
+    output <- list(A = A, I = I)
+    return(output)
+  }
+  
+  # If A is already in L form, return it
+  output <- list(A = A, I = I)
+  return(output)
+}
 
 apply_gauss_jordan_3d <- function(A, I) {
   # From A --> L

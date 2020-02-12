@@ -1,18 +1,18 @@
-# Install packages if not done yet
-if (!requireNamespace("plotly", quietly = TRUE))
-  install.packages("plotly")
-if (!requireNamespace("purrr", quietly = TRUE))
-  install.packages("purrr")
-if (!requireNamespace("dplyr", quietly = TRUE))
-  install.packages("dplyr")
-if (!requireNamespace("stringr", quietly = TRUE))
-  install.packages("stringr")
-if (!requireNamespace("shiny", quietly = TRUE))
-  install.packages("shiny")
-if (!requireNamespace("shinythemes", quietly = TRUE))
-  install.packages("shinythemes")
-if (!requireNamespace("shinyMatrix", quietly = TRUE))
-  install.packages("shinyMatrix")
+# # Install packages if not done yet
+# if (!requireNamespace("plotly", quietly = TRUE))
+#   install.packages("plotly")
+# if (!requireNamespace("purrr", quietly = TRUE))
+#   install.packages("purrr")
+# if (!requireNamespace("dplyr", quietly = TRUE))
+#   install.packages("dplyr")
+# if (!requireNamespace("stringr", quietly = TRUE))
+#   install.packages("stringr")
+# if (!requireNamespace("shiny", quietly = TRUE))
+#   install.packages("shiny")
+# if (!requireNamespace("shinythemes", quietly = TRUE))
+#   install.packages("shinythemes")
+# if (!requireNamespace("shinyMatrix", quietly = TRUE))
+#   install.packages("shinyMatrix")
 
 # Load packages
 library(plotly)
@@ -25,7 +25,6 @@ library(shinyMatrix)
 library(xtable)
 
 # Source script
-setwd(dir = dirname(rstudioapi::getSourceEditorContext()$path))
 source("utils.R")
 
 # Create user interface
@@ -124,7 +123,11 @@ server <- function(input, output, session) {
     }, colnames = FALSE)
   })
   observeEvent(input$play, {
-    mat_list <<- apply_gauss_jordan_3d(mat_list[[1]], mat_list[[2]])
+    if (nrow(input$transform_mat) == 2) {
+      mat_list <<- apply_gauss_jordan_2d(mat_list[[1]], mat_list[[2]])
+    } else if (nrow(input$transform_mat) == 3) {
+      mat_list <<- apply_gauss_jordan_3d(mat_list[[1]], mat_list[[2]])
+    }
     output$gauss_matrix <- renderTable({
       mat_list[[1]]
     }, colnames = FALSE)
@@ -145,8 +148,14 @@ server <- function(input, output, session) {
     }, colnames = FALSE)
   })
   observeEvent(input$advance, {
-    while (any(mat_list[[1]] != apply_gauss_jordan_3d(mat_list[[1]], mat_list[[2]])[[1]])) {
-      mat_list <<- apply_gauss_jordan_3d(mat_list[[1]], mat_list[[2]])
+    if (nrow(input$transform_mat) == 2) {
+      while (any(mat_list[[1]] != apply_gauss_jordan_2d(mat_list[[1]], mat_list[[2]])[[1]])) {
+        mat_list <<- apply_gauss_jordan_2d(mat_list[[1]], mat_list[[2]])
+      }
+    } else if (nrow(input$transform_mat) == 3) {
+      while (any(mat_list[[1]] != apply_gauss_jordan_3d(mat_list[[1]], mat_list[[2]])[[1]])) {
+        mat_list <<- apply_gauss_jordan_3d(mat_list[[1]], mat_list[[2]])
+      }
     }
     output$gauss_matrix <- renderTable({
       mat_list[[1]]
