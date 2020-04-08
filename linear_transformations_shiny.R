@@ -23,6 +23,7 @@ library(shiny)
 library(shinythemes)
 library(shinyMatrix)
 library(xtable)
+library(MASS)
 
 # Source script
 source("utils.R")
@@ -116,10 +117,10 @@ server <- function(input, output, session) {
       diag(nrow(input$transform_mat))
     )
     output$gauss_matrix <- renderTable({
-      mat_list[[1]]
+      as.character(fractions(mat_list[[1]]))
     }, colnames = FALSE)
     output$gauss_identity <- renderTable({
-      mat_list[[2]]
+      as.character(fractions(mat_list[[2]]))
     }, colnames = FALSE)
   })
   observeEvent(input$play, {
@@ -129,10 +130,10 @@ server <- function(input, output, session) {
       mat_list <<- apply_gauss_jordan_3d(mat_list[[1]], mat_list[[2]])
     }
     output$gauss_matrix <- renderTable({
-      mat_list[[1]]
+      as.character(fractions(mat_list[[1]]))
     }, colnames = FALSE)
     output$gauss_identity <- renderTable({
-      mat_list[[2]]
+      as.character(fractions(mat_list[[2]]))
     }, colnames = FALSE)
   })
   observeEvent(input$rewind, {
@@ -141,10 +142,10 @@ server <- function(input, output, session) {
       diag(nrow(input$transform_mat))
     )
     output$gauss_matrix <- renderTable({
-      mat_list[[1]]
+      as.character(fractions(mat_list[[1]]))
     }, colnames = FALSE)
     output$gauss_identity <- renderTable({
-      mat_list[[2]]
+      as.character(fractions(mat_list[[2]]))
     }, colnames = FALSE)
   })
   observeEvent(input$advance, {
@@ -158,10 +159,10 @@ server <- function(input, output, session) {
       }
     }
     output$gauss_matrix <- renderTable({
-      mat_list[[1]]
+      as.character(fractions(mat_list[[1]]))
     }, colnames = FALSE)
     output$gauss_identity <- renderTable({
-      mat_list[[2]]
+      as.character(fractions(mat_list[[2]]))
     }, colnames = FALSE)
   })
 }
