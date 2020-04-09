@@ -24,7 +24,7 @@ plot_2d <- function(transformation_matrix) {
     min_coordinate <- -1 * max_coordinate
   }
   axis_lim <- list(nticks = 6, range = c(min_coordinate - 1, max_coordinate + 1))
-  cols <- c("red", "green", "blue", "yellow")
+  cols <- c("blue", "green", "red", "yellow")
   plot_list <- purrr::map(c("input", "output"), function(type) {
     p <- df %>% 
       filter(status == type) %>% 
@@ -393,7 +393,9 @@ apply_gauss_jordan_2d <- function(A, I) {
     mults <- find_multiples(x = A[, 1], A[, 2], entry = 1)
     A[, 2] <- combine_columns(x = A[, 1], y = A[, 2], x_m = mults["x"], y_m = mults["y"])
     I[, 2] <- combine_columns(x = I[, 1], y = I[, 2], x_m = mults["x"], y_m = mults["y"])
-    output <- list(A = A, I = I)
+    assignment_message <- str_c("C2", " \U2190 ", fractions(mults["x"]), "C1",
+                                " + ", fractions(mults["y"]), "C2", " \n", sep = "")
+    output <- list(A = A, I = I, assignment_message = assignment_message)
     return(output)
   }
   
@@ -403,7 +405,8 @@ apply_gauss_jordan_2d <- function(A, I) {
     if (pivots[i] != 1 & pivots[i] != 0) {
       A[, i] <- A[, i] / pivots[i]
       I[, i] <- I[, i] / pivots[i]
-      output <- list(A = A, I = I)
+      assignment_message <- str_c("C", i, " \U2190 ", fractions(1 / pivots[i]), "C", i, " \n", sep = "")
+      output <- list(A = A, I = I, assignment_message = assignment_message)
       return(output)
     }
   }
@@ -413,14 +416,17 @@ apply_gauss_jordan_2d <- function(A, I) {
     mults <- find_multiples(x = A[, 2], A[, 1], entry = 2)
     A[, 1] <- combine_columns(x = A[, 2], y = A[, 1], x_m = mults["x"], y_m = mults["y"])
     I[, 1] <- combine_columns(x = I[, 2], y = I[, 1], x_m = mults["x"], y_m = mults["y"])
-    output <- list(A = A, I = I)
+    assignment_message <- str_c("C", " \U2190 ", fractions(mults["y"]), "C1",
+                                " + ", fractions(mults["x"]), "C2", " \n", sep = "")
+    output <- list(A = A, I = I, assignment_message = assignment_message)
     return(output)
   }
   
   # If A is already in L form, return it
-  output <- list(A = A, I = I)
+  output <- list(A = A, I = I, assignment_message = "")
   return(output)
 }
+
 
 apply_gauss_jordan_3d <- function(A, I) {
   # From A --> L
@@ -438,6 +444,9 @@ apply_gauss_jordan_3d <- function(A, I) {
             mat[, j] <- combine_columns(x = mat[, i], y = mat[, j], x_m = mults["x"], y_m = mults["y"])
             mat
           })
+          assignment_message <- str_c("C", i, " \U2190 ", fractions(mults["x"]), "C", i,
+                                      " + ", fractions(mults["y"]), "C", j, " \n", sep = "")
+          output <- c(output, assignment_message)
           return(output)
         }
       }
@@ -451,6 +460,9 @@ apply_gauss_jordan_3d <- function(A, I) {
         mat[, 3] <- combine_columns(x = mat[, 2], y = mat[, 3], x_m = mults["x"], y_m = mults["y"])
         mat
       })
+      assignment_message <- str_c("C3", " \U2190 ", fractions(mults["x"]), "C2",
+                                  " + ", fractions(mults["y"]), "C3", " \n", sep = "")
+      output <- c(output, assignment_message)
       return(output)
     } else if (A[2, 1] != 0 & A[1, 1] == 0) {
       mults <- find_multiples(x = A[, 1], y = A[, 3], entry = 2)
@@ -458,6 +470,9 @@ apply_gauss_jordan_3d <- function(A, I) {
         mat[, 3] <- combine_columns(x = mat[, 1], y = mat[, 3], x_m = mults["x"], y_m = mults["y"])
         mat
       })
+      assignment_message <- str_c("C3", " \U2190 ", fractions(mults["x"]), "C1", " + ",
+                                  fractions(mults["y"]), "C3", " \n", sep = "")
+      output <- c(output, assignment_message)
       return(output)
     }
   }
@@ -470,6 +485,8 @@ apply_gauss_jordan_3d <- function(A, I) {
       A[, i] <- A[, i] / pivots[i]
       I[, i] <- I[, i] / pivots[i]
       output <- list(A, I)
+      assignment_message <- str_c("C", i, " \U2190 ", fractions(1/pivots[i]), "C", i, " \n", sep = "")
+      output <- c(output, assignment_message)
       return(output)
     }
   }
@@ -484,6 +501,9 @@ apply_gauss_jordan_3d <- function(A, I) {
             mat[, j] <- combine_columns(x = mat[, j], y = mat[, i], x_m = mults["x"], y_m = mults["y"])
             mat
           })
+          assignment_message <- str_c("C", j, " \U2190 ", fractions(mults["x"]), "C", j, " + ",
+                                      fractions(mults["y"]), "C", i, " \n", sep = "")
+          output <- c(output, assignment_message)
           return(output)
         }
       }
@@ -491,9 +511,10 @@ apply_gauss_jordan_3d <- function(A, I) {
   }
   
   # If A is already reduced, return it
-  output <- list(A, I)
+  output <- list(A, I, "")
   return(output)
 }
+
 
 find_multiples <- function(x, y, entry) {
   if (x[entry] == y[entry]) {

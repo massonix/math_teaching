@@ -57,17 +57,18 @@ ui <- fluidPage(
     mainPanel(
       tabsetPanel(
         type = "tabs",
-        tabPanel("Plot",  plotlyOutput("plot")),
-        tabPanel("Null Space", verbatimTextOutput("null_space"), plotlyOutput("null_space_plot")),
-        tabPanel("Determinant", uiOutput("determinant")),
+        tabPanel("Visualization",  plotlyOutput("plot")),
         tabPanel(
           "Gauss-Jordan", 
           tableOutput("gauss_matrix"), 
-          tableOutput("gauss_identity"), 
+          tableOutput("gauss_identity"),
+          verbatimTextOutput("assignment_message"),
           actionButton("rewind", "", icon = icon("fast-backward")),
           actionButton("play", "", icon = icon("play")),
           actionButton("advance", "", icon = icon("fast-forward"))
-        )
+        ),
+        tabPanel("Null Space", verbatimTextOutput("null_space"), plotlyOutput("null_space_plot")),
+        tabPanel("Determinant", uiOutput("determinant"))
       )
     )
   )
@@ -76,6 +77,7 @@ ui <- fluidPage(
 
 # Define server function
 mat_list <- list(matrix(), matrix())
+assignment_message <- ""
 server <- function(input, output, session) {
   observeEvent(input$dimension, {
     mat_options <- list(
@@ -125,10 +127,23 @@ server <- function(input, output, session) {
   })
   observeEvent(input$play, {
     if (nrow(input$transform_mat) == 2) {
-      mat_list <<- apply_gauss_jordan_2d(mat_list[[1]], mat_list[[2]])
+      assignment_message <<- str_c(
+        assignment_message,
+        apply_gauss_jordan_2d(mat_list[[1]], mat_list[[2]])[3],
+        sep = ""
+      )
+      mat_list <<- apply_gauss_jordan_2d(mat_list[[1]], mat_list[[2]])[1:2]
     } else if (nrow(input$transform_mat) == 3) {
-      mat_list <<- apply_gauss_jordan_3d(mat_list[[1]], mat_list[[2]])
+      assignment_message <<- str_c(
+        assignment_message,
+        apply_gauss_jordan_3d(mat_list[[1]], mat_list[[2]])[3],
+        sep = ""
+      )
+      mat_list <<- apply_gauss_jordan_3d(mat_list[[1]], mat_list[[2]])[1:2]
     }
+    output$assignment_message <- renderText({ 
+      assignment_message
+    })
     output$gauss_matrix <- renderTable({
       as.character(fractions(mat_list[[1]]))
     }, colnames = FALSE)
@@ -137,10 +152,14 @@ server <- function(input, output, session) {
     }, colnames = FALSE)
   })
   observeEvent(input$rewind, {
+    assignment_message <<- ""
     mat_list <<- list(
       input$transform_mat,
       diag(nrow(input$transform_mat))
     )
+    output$assignment_message <- renderText({ 
+      assignment_message
+    })
     output$gauss_matrix <- renderTable({
       as.character(fractions(mat_list[[1]]))
     }, colnames = FALSE)
@@ -151,13 +170,26 @@ server <- function(input, output, session) {
   observeEvent(input$advance, {
     if (nrow(input$transform_mat) == 2) {
       while (any(mat_list[[1]] != apply_gauss_jordan_2d(mat_list[[1]], mat_list[[2]])[[1]])) {
-        mat_list <<- apply_gauss_jordan_2d(mat_list[[1]], mat_list[[2]])
+        assignment_message <<- str_c(
+          assignment_message,
+          apply_gauss_jordan_2d(mat_list[[1]], mat_list[[2]])[3],
+          sep = ""
+        )
+        mat_list <<- apply_gauss_jordan_2d(mat_list[[1]], mat_list[[2]])[1:2]
       }
     } else if (nrow(input$transform_mat) == 3) {
       while (any(mat_list[[1]] != apply_gauss_jordan_3d(mat_list[[1]], mat_list[[2]])[[1]])) {
-        mat_list <<- apply_gauss_jordan_3d(mat_list[[1]], mat_list[[2]])
+        assignment_message <<- str_c(
+          assignment_message,
+          apply_gauss_jordan_3d(mat_list[[1]], mat_list[[2]])[3],
+          sep = ""
+        )
+        mat_list <<- apply_gauss_jordan_3d(mat_list[[1]], mat_list[[2]])[1:2]
       }
     }
+    output$assignment_message <- renderText({ 
+      assignment_message
+    })
     output$gauss_matrix <- renderTable({
       as.character(fractions(mat_list[[1]]))
     }, colnames = FALSE)
