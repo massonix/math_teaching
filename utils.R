@@ -24,7 +24,7 @@ plot_2d <- function(transformation_matrix) {
     min_coordinate <- -1 * max_coordinate
   }
   axis_lim <- list(nticks = 6, range = c(min_coordinate - 1, max_coordinate + 1))
-  cols <- c("red", "green", "blue", "yellow")
+  cols <- c("blue", "green", "red", "yellow")
   plot_list <- purrr::map(c("input", "output"), function(type) {
     p <- df %>% 
       filter(status == type) %>% 
@@ -323,4 +323,217 @@ find_inverse <- function(A) {
   } else {
     solve(A)
   }
+}
+
+# adjust_column <- function(A, coords) {
+#   nums <- c(A[coords[[1]][1], coords[[1]][2]], A[coords[[2]][1], coords[[2]][2]])
+#   if (nums[1] != nums[2]) {
+#     greater_num <- max(nums)
+#     smaller_num <- min(nums)
+#     col_greater <- coords[[which(nums == greater_num)]][2]
+#     col_smaller <- coords[[which(nums == smaller_num)]][2]
+#   } else {
+#     greater_num <- nums[1]
+#     smaller_num <- nums[1]
+#     col_greater <- coords[[1]][2]
+#     col_smaller <- coords[[2]][2]
+#   }
+#   
+#   if (greater_num == smaller_num) {
+#     A[, coords[[2]][2]] <- -1 * A[, col_smaller] + A[, col_greater]
+#     return(A)
+#   } else if (greater_num %% smaller_num == 0) {
+#     fact <- greater_num
+#     fact <- ifelse(sign(nums[1]) == sign(nums[2]), -1 * fact, fact)
+#     A[, coords[[2]][2]] <- fact * A[, col_smaller] + A[, col_greater]
+#     return(A)
+#   } else {
+#     fact1 <- ifelse(sign(nums[1]) == sign(nums[2]), -1 * nums[2], nums[2])
+#     fact2 <- nums[1]
+#     A[, coords[[2]][2]] <- fact2 * A[, coords[[2]][1]] + fact1 * A[, coords[[2]][1]]
+#     return(A)
+#   }
+# }
+
+# apply_gauss_3d <- function(A) {
+#   if (A[1, 1] != 0 & A[1, 2] != 0) {
+#     A <- adjust_column(A, coords = list(c(1, 1), c(1, 2)))
+#     A
+#   } else if (A[1, 1] != 0 & A[1, 3] != 0) {
+#     A <- adjust_column(A, coords = list(c(1, 1), c(1, 3)))
+#     A
+#   } else if (A[2, 2] != 0 & A[2, 3] != 0) {
+#     A <- adjust_column(A, coords = list(c(2, 2), c(2, 3)))
+#     A
+#   } else {
+#     A
+#   }
+# }
+
+# combine_columns <- function(x, y, entry) {
+#   if (x[entry] == y[entry]) {
+#     x_multiple <- 1
+#     y_multiple <- -1
+#   } else if (x[entry] %% y[entry] == 0) {
+#     x_multiple <- 1
+#     y_multiple <- -1 * x[entry]
+#   } else if (y[entry] %% x[entry] == 0) {
+#     x_multiple <- -1 * y[entry]
+#     y_multiple <- 1
+#   } else {
+#     x_multiple <- -1 * y[entry]
+#     y_multiple <- x[entry]
+#   }
+#   new_column <- (x_multiple * x) + (y_multiple * y)
+#   new_column
+# }
+apply_gauss_jordan_2d <- function(A, I) {
+  # From A --> L
+  if (A[1, 1] != 0 & A[1, 2] != 0) {
+    mults <- find_multiples(x = A[, 1], A[, 2], entry = 1)
+    A[, 2] <- combine_columns(x = A[, 1], y = A[, 2], x_m = mults["x"], y_m = mults["y"])
+    I[, 2] <- combine_columns(x = I[, 1], y = I[, 2], x_m = mults["x"], y_m = mults["y"])
+    assignment_message <- str_c("C2", " \U2190 ", fractions(mults["x"]), "C1",
+                                " + ", fractions(mults["y"]), "C2", " \n", sep = "")
+    output <- list(A = A, I = I, assignment_message = assignment_message)
+    return(output)
+  }
+  
+  # Force pivots = 1
+  pivots <- c(A[1, 1], A[2, 2])
+  for (i in 1:length(pivots)) {
+    if (pivots[i] != 1 & pivots[i] != 0) {
+      A[, i] <- A[, i] / pivots[i]
+      I[, i] <- I[, i] / pivots[i]
+      assignment_message <- str_c("C", i, " \U2190 ", fractions(1 / pivots[i]), "C", i, " \n", sep = "")
+      output <- list(A = A, I = I, assignment_message = assignment_message)
+      return(output)
+    }
+  }
+  
+  # From L --> R
+  if (A[2, 1] != 0 & A[2, 2]) {
+    mults <- find_multiples(x = A[, 2], A[, 1], entry = 2)
+    A[, 1] <- combine_columns(x = A[, 2], y = A[, 1], x_m = mults["x"], y_m = mults["y"])
+    I[, 1] <- combine_columns(x = I[, 2], y = I[, 1], x_m = mults["x"], y_m = mults["y"])
+    assignment_message <- str_c("C", " \U2190 ", fractions(mults["y"]), "C1",
+                                " + ", fractions(mults["x"]), "C2", " \n", sep = "")
+    output <- list(A = A, I = I, assignment_message = assignment_message)
+    return(output)
+  }
+  
+  # If A is already in L form, return it
+  output <- list(A = A, I = I, assignment_message = "")
+  return(output)
+}
+
+
+apply_gauss_jordan_3d <- function(A, I) {
+  # From A --> L
+  ## Find zeros first row
+  for (i in 1:2) {
+    if (A[1, i] == 0) {
+      next
+    } else {
+      for (j in (i + 1):ncol(A)) {
+        if (A[1, j] == 0) {
+          next
+        } else {
+          mults <- find_multiples(x = A[, i], y = A[, j], entry = 1)
+          output <- map(list(A, I), function(mat) {
+            mat[, j] <- combine_columns(x = mat[, i], y = mat[, j], x_m = mults["x"], y_m = mults["y"])
+            mat
+          })
+          assignment_message <- str_c("C", i, " \U2190 ", fractions(mults["x"]), "C", i,
+                                      " + ", fractions(mults["y"]), "C", j, " \n", sep = "")
+          output <- c(output, assignment_message)
+          return(output)
+        }
+      }
+    }
+  }
+  ## Find 0 in the element a23
+  if (A[2, 3] != 0) {
+    if (A[2, 2] != 0 & A[1, 2] == 0) {
+      mults <- find_multiples(x = A[, 2], y = A[, 3], entry = 2)
+      output <- map(list(A, I), function(mat) {
+        mat[, 3] <- combine_columns(x = mat[, 2], y = mat[, 3], x_m = mults["x"], y_m = mults["y"])
+        mat
+      })
+      assignment_message <- str_c("C3", " \U2190 ", fractions(mults["x"]), "C2",
+                                  " + ", fractions(mults["y"]), "C3", " \n", sep = "")
+      output <- c(output, assignment_message)
+      return(output)
+    } else if (A[2, 1] != 0 & A[1, 1] == 0) {
+      mults <- find_multiples(x = A[, 1], y = A[, 3], entry = 2)
+      output <- map(list(A, I), function(mat) {
+        mat[, 3] <- combine_columns(x = mat[, 1], y = mat[, 3], x_m = mults["x"], y_m = mults["y"])
+        mat
+      })
+      assignment_message <- str_c("C3", " \U2190 ", fractions(mults["x"]), "C1", " + ",
+                                  fractions(mults["y"]), "C3", " \n", sep = "")
+      output <- c(output, assignment_message)
+      return(output)
+    }
+  }
+  
+  ## Simplify to force pivots = 1
+  ## Potentially at this point: PERMUTE TO GET INTO L form
+  pivots <- c(A[1, 1], A[2, 2], A[3, 3])
+  for (i in 1:3) {
+    if (pivots[i] != 0 & pivots[i] != 1) {
+      A[, i] <- A[, i] / pivots[i]
+      I[, i] <- I[, i] / pivots[i]
+      output <- list(A, I)
+      assignment_message <- str_c("C", i, " \U2190 ", fractions(1/pivots[i]), "C", i, " \n", sep = "")
+      output <- c(output, assignment_message)
+      return(output)
+    }
+  }
+  
+  # From L --> R
+  for (i in 3:2) {
+    if (pivots[i] != 0) {
+      for (j in (i-1):1) {
+        if (A[i, j] != 0) {
+          mults <- find_multiples(x = A[, j], y = A[, i], entry = i)
+          output <- map(list(A, I), function(mat) {
+            mat[, j] <- combine_columns(x = mat[, j], y = mat[, i], x_m = mults["x"], y_m = mults["y"])
+            mat
+          })
+          assignment_message <- str_c("C", j, " \U2190 ", fractions(mults["x"]), "C", j, " + ",
+                                      fractions(mults["y"]), "C", i, " \n", sep = "")
+          output <- c(output, assignment_message)
+          return(output)
+        }
+      }
+    }
+  }
+  
+  # If A is already reduced, return it
+  output <- list(A, I, "")
+  return(output)
+}
+
+
+find_multiples <- function(x, y, entry) {
+  if (x[entry] == y[entry]) {
+    x_multiple <- 1
+    y_multiple <- -1
+  } else if (x[entry] %% y[entry] == 0) {
+    x_multiple <- 1
+    y_multiple <- -1 * x[entry]
+  } else if (y[entry] %% x[entry] == 0) {
+    x_multiple <- -1 * y[entry]
+    y_multiple <- 1
+  } else {
+    x_multiple <- -1 * y[entry]
+    y_multiple <- x[entry]
+  }
+  c(x = x_multiple, y = y_multiple)
+}
+
+combine_columns <- function(x, y, x_m, y_m) {
+  new_column <- (x_m * x) + (y_m * y)
+  new_column
 }

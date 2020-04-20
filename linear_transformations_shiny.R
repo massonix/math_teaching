@@ -1,18 +1,18 @@
-# Install packages if not done yet
-if (!requireNamespace("plotly", quietly = TRUE))
-  install.packages("plotly")
-if (!requireNamespace("purrr", quietly = TRUE))
-  install.packages("purrr")
-if (!requireNamespace("dplyr", quietly = TRUE))
-  install.packages("dplyr")
-if (!requireNamespace("stringr", quietly = TRUE))
-  install.packages("stringr")
-if (!requireNamespace("shiny", quietly = TRUE))
-  install.packages("shiny")
-if (!requireNamespace("shinythemes", quietly = TRUE))
-  install.packages("shinythemes")
-if (!requireNamespace("shinyMatrix", quietly = TRUE))
-  install.packages("shinyMatrix")
+# # Install packages if not done yet
+# if (!requireNamespace("plotly", quietly = TRUE))
+#   install.packages("plotly")
+# if (!requireNamespace("purrr", quietly = TRUE))
+#   install.packages("purrr")
+# if (!requireNamespace("dplyr", quietly = TRUE))
+#   install.packages("dplyr")
+# if (!requireNamespace("stringr", quietly = TRUE))
+#   install.packages("stringr")
+# if (!requireNamespace("shiny", quietly = TRUE))
+#   install.packages("shiny")
+# if (!requireNamespace("shinythemes", quietly = TRUE))
+#   install.packages("shinythemes")
+# if (!requireNamespace("shinyMatrix", quietly = TRUE))
+#   install.packages("shinyMatrix")
 
 # Load packages
 library(plotly)
@@ -23,9 +23,9 @@ library(shiny)
 library(shinythemes)
 library(shinyMatrix)
 library(xtable)
+library(MASS)
 
 # Source script
-setwd(dir = dirname(rstudioapi::getSourceEditorContext()$path))
 source("utils.R")
 
 # Create user interface
@@ -57,16 +57,27 @@ ui <- fluidPage(
     mainPanel(
       tabsetPanel(
         type = "tabs",
-        tabPanel("Plot",  plotlyOutput("plot")),
+        tabPanel("Visualization",  plotlyOutput("plot")),
+        tabPanel(
+          "Gauss-Jordan", 
+          tableOutput("gauss_matrix"), 
+          tableOutput("gauss_identity"),
+          verbatimTextOutput("assignment_message"),
+          actionButton("rewind", "", icon = icon("fast-backward")),
+          actionButton("play", "", icon = icon("play")),
+          actionButton("advance", "", icon = icon("fast-forward"))
+        ),
         tabPanel("Null Space", verbatimTextOutput("null_space"), plotlyOutput("null_space_plot")),
-        tabPanel("Determinant", uiOutput("determinant")),
-        tabPanel("Inverse Matrix", verbatimTextOutput("inverse_matrix"))
+        tabPanel("Determinant", uiOutput("determinant"))
       )
     )
   )
 )
 
+
 # Define server function
+mat_list <- list(matrix(), matrix())
+assignment_message <- ""
 server <- function(input, output, session) {
   observeEvent(input$dimension, {
     mat_options <- list(
@@ -102,8 +113,89 @@ server <- function(input, output, session) {
       plot_null_space_3d(input$transform_mat)
     }
   })
-  output$inverse_matrix <- renderPrint({ 
-    find_inverse(input$transform_mat) 
+  observeEvent(input$transform_mat, {
+    mat_list <<- list(
+      input$transform_mat,
+      diag(nrow(input$transform_mat))
+    )
+    output$gauss_matrix <- renderTable({
+      as.character(fractions(mat_list[[1]]))
+    }, colnames = FALSE)
+    output$gauss_identity <- renderTable({
+      as.character(fractions(mat_list[[2]]))
+    }, colnames = FALSE)
+  })
+  observeEvent(input$play, {
+    if (nrow(input$transform_mat) == 2) {
+      assignment_message <<- str_c(
+        assignment_message,
+        apply_gauss_jordan_2d(mat_list[[1]], mat_list[[2]])[3],
+        sep = ""
+      )
+      mat_list <<- apply_gauss_jordan_2d(mat_list[[1]], mat_list[[2]])[1:2]
+    } else if (nrow(input$transform_mat) == 3) {
+      assignment_message <<- str_c(
+        assignment_message,
+        apply_gauss_jordan_3d(mat_list[[1]], mat_list[[2]])[3],
+        sep = ""
+      )
+      mat_list <<- apply_gauss_jordan_3d(mat_list[[1]], mat_list[[2]])[1:2]
+    }
+    output$assignment_message <- renderText({ 
+      assignment_message
+    })
+    output$gauss_matrix <- renderTable({
+      as.character(fractions(mat_list[[1]]))
+    }, colnames = FALSE)
+    output$gauss_identity <- renderTable({
+      as.character(fractions(mat_list[[2]]))
+    }, colnames = FALSE)
+  })
+  observeEvent(input$rewind, {
+    assignment_message <<- ""
+    mat_list <<- list(
+      input$transform_mat,
+      diag(nrow(input$transform_mat))
+    )
+    output$assignment_message <- renderText({ 
+      assignment_message
+    })
+    output$gauss_matrix <- renderTable({
+      as.character(fractions(mat_list[[1]]))
+    }, colnames = FALSE)
+    output$gauss_identity <- renderTable({
+      as.character(fractions(mat_list[[2]]))
+    }, colnames = FALSE)
+  })
+  observeEvent(input$advance, {
+    if (nrow(input$transform_mat) == 2) {
+      while (any(mat_list[[1]] != apply_gauss_jordan_2d(mat_list[[1]], mat_list[[2]])[[1]])) {
+        assignment_message <<- str_c(
+          assignment_message,
+          apply_gauss_jordan_2d(mat_list[[1]], mat_list[[2]])[3],
+          sep = ""
+        )
+        mat_list <<- apply_gauss_jordan_2d(mat_list[[1]], mat_list[[2]])[1:2]
+      }
+    } else if (nrow(input$transform_mat) == 3) {
+      while (any(mat_list[[1]] != apply_gauss_jordan_3d(mat_list[[1]], mat_list[[2]])[[1]])) {
+        assignment_message <<- str_c(
+          assignment_message,
+          apply_gauss_jordan_3d(mat_list[[1]], mat_list[[2]])[3],
+          sep = ""
+        )
+        mat_list <<- apply_gauss_jordan_3d(mat_list[[1]], mat_list[[2]])[1:2]
+      }
+    }
+    output$assignment_message <- renderText({ 
+      assignment_message
+    })
+    output$gauss_matrix <- renderTable({
+      as.character(fractions(mat_list[[1]]))
+    }, colnames = FALSE)
+    output$gauss_identity <- renderTable({
+      as.character(fractions(mat_list[[2]]))
+    }, colnames = FALSE)
   })
 }
 
