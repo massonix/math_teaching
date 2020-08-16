@@ -311,7 +311,78 @@ On the final part of the session, students should derive the least squares regre
 - Define what to include in the "computation" tab of the shiny app, and how to display it.
 
 
-## Singular Value Decomposition and Principal Component Analysis
+## Principal Component Analysis: intuition, computation, and usability
+
+### Pre-requisites
+
+Understand the following concepts before attending the class:
+
+1. Total sum of squares
+2. Covariance and correlation
+3. Orthonormal matrices preserve the norm and scalar product.
+4. A symmetric matrix has n orthogonal eigenvectors.
+5. V --> AtA, U --> AAt
+
+Read the first pages of the following tutorial: https://www.cs.cmu.edu/~elaw/papers/pca.pdf.
+
+
+### Objectives
+
+- Understand the objectives of PCA in an intuitive way: maximize variance, eliminate redundancy and noise.
+- Compute PCA using Singular Value Decomposition (SVD).
+- Use PCA in real-world case studies to answer biological questions.
+
+
+
+### Description of the session
+
+TBD
+
+
+# Introduce dummy datasets:
+
+*Note*: these datasets are already defined in the PCA tutorial I gave to the wet-lab
+
+1. Sports athletes: measure different body stats for 3 sports athletes:  LeBron James, Kobe Bryant and Ronaldo Luids Nazario de Lima.
+2. PBMC
+
+The purpose of this datasets is that they should contain:
+1. Redundancy: for example, height measured in inches or centimeters.
+2. Noise: ie 100.3512 kg vs 100.3567 kg.
+3. Need to center data
+
+### Why PCA?
+
+Objective of PCA: express observations as vectors in Rp / p < n using a basis that maximizes variability and eliminates redundancy and noise in our measurements.
+
+How do we quantify redundancy and variability in our data matrix? Covariance matrix (AtA):
+
+*Leading diagonal: variance of every variable.
+*Off-diagonal terms: covariance between pairwise variables (reduncancy).
+
+Principal components: sequence of projections of the data, mutally uncorrelated and ordered in variance.
+
+We want to reduce the dimensionality (p < n), in a way that we encapsulate as much variability as possible. 
+
+How do we express "mutually uncorrelated" in algebraic terms? Orthogonal vectors. PCs are the eigenvectors of the matrix A, which by definition are orthogonal (symmetric matrices). We will see in the following hands-on session how PCA maximizes variability.
+
+#### PCA by SVD
+
+Change of basis: linear combination of features of A to obtain each PC (check modern statistics for modern biology)
+
+AV = U sigma
+
+Interprete matrices V, U and Sigma in terms of PCA:
+
+V: loadings. Importance: say that high + scores reflect a correlated set of variables that explain the variability in PC, high - scores anticorrelated with PC.
+U: principal components
+Sigma: variance explained by each PC (U is orthonormal, thus the norm of each PC is 1 * sigma).
+
+
+#### Case studyes
+
+Bulk RNA-seq: show that PCA allows us to visualize high-dimensional data. Use some cancer bulk RNA-seq dataset to cluster samples
+scRNA-seq: theoretical explanation of sources of variability in scRNA-seq (technical and biological). Correlation of PC1/2 with library size, sampling time, cell cycle (metagenes). Scree plot.
 
 
 2nd part of this session: Principal Component Analysis
@@ -327,24 +398,3 @@ On the final part of the session, students should derive the least squares regre
   * Choose a better basis to represent each cell: from genes --> metagenes or gene programmes
   * How do we measure redundancy? off-diagonal entries in the correlation matrix.
   * Second purpose: plotting high dimensional data onto 2D.
-
-
-
-TBD
-
-### Pre-requisites
-
-TBD
-
-### Objectives
-
-TBD
-
-### Description of the session
-
-TBD
-
-### To-do list
-
-
-
