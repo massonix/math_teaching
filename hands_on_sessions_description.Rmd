@@ -338,6 +338,10 @@ Read the first pages of the following tutorial: https://www.cs.cmu.edu/~elaw/pap
 
 TBD
 
+Why do we want to reduce the dimensionality?
+
+* Plot high-dimensional data on a 2D screen/paper.
+* Reduce computational complexity
 
 # Introduce dummy datasets:
 
@@ -352,6 +356,7 @@ The purpose of this datasets is that they should contain:
 3. Need to center data
 
 ### Why PCA?
+
 
 Objective of PCA: express observations as vectors in Rp / p < n using a basis that maximizes variability and eliminates redundancy and noise in our measurements.
 
