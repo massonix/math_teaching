@@ -156,6 +156,54 @@ Then, in the left side of the app enter the matrix A and the vector b. You shoul
 
 # Solving the problem
 
+As we have seen above, There is no vector x that will solve the system Ax = b. However, we can approximate the solution by finding the combination p = $\widehat{x}$<sub>1</sub> a<sub>1</sub> + ··· + $\widehat{x}$<sub>n</sub> a<sub>n</sub> that is **closest to a given vector b**. Thus, **p** is the orthogonal projection of **b** onto C(A). You can clearly visualize this in the first tab of the shiny app. 
+
+As p is in C(A), we can find a vector $\widehat{x}$ that solves the new system: A\widehat{x} = p.
+
+To solve this problem, we will follow three steps, which are highlighted in the section "Projection Onto a Subspace" in Chapter 4 of "Introduction to Linear Algebra", by Gilbert Strang. The steps are the following:
+
+1. Find the vector $\widehat{x}$ 
+2. Find the projection p = A\widehat{x}
+3. Find the projection matrix P
+
+We will develop each of the steps and apply them to solve the example above.
+
+## Find x^
+
+The key to find $\widehat{x}$ is in the geometry of the error vector e, defined as follows:
+
+$$
+e = b - p = b - A\widehat{x}
+$$
+As you can see in the app, e is orthogonal to C(A). Thus, **the scalar product of each column vector of A (a<sub>1</sub>,···, a<sub>n</sub>) and e is 0**. We can express this in a single matrix-vector product by transposing A, so that the column vectors become the rows of A^T^:
+
+$$
+A^T e = 0
+$$
+$$
+A^T (b - A\widehat{x}) = 0
+$$
+
+Let us distribute A^T^:
+
+$$
+A^Tb - A^T A\widehat{x} = 0
+$$
+
+And to add $$A^T A\widehat{x}$$ to both sides:
+
+$$
+A^Tb = A^T A\widehat{x}
+$$
+This symmetric matrix A^T^A is invertible if the column vectors are independent. If that's the case, we can multiply both sides by (A^T^A)^-1^ and isolate $\widehat{x}$:
+
+
+ 
+## Find p
+
+## Find the projection matrix P
+
+https://www.khanacademy.org/math/linear-algebra/alternate-bases/orthogonal-projections/v/linear-algebra-another-least-squares-example
 
 # Introduction to ggplot2
 
