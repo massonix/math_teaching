@@ -40,6 +40,8 @@ The majority of the reasoning and examples used in this tutorial come from the 4
 
 - [tidyverse](https://www.tidyverse.org/)
 - [gapminder](https://cran.r-project.org/web/packages/gapminder/index.html)
+- [matlib](https://cran.r-project.org/web/packages/matlib/index.html)
+- [MASS](https://cran.r-project.org/web/packages/MASS/MASS.pdf)
 
 
 ## Disclaimer
@@ -113,7 +115,7 @@ ggplot(df) +
   theme(axis.title = element_text(size = 13, face = "bold"))
 ```
 
-This is usually the case in **systems of linear equations with more equations than unknowns has no solution**. Colloquially, these are known as "tall and skinny matrices" (more rows than columns).
+This is usually the case in **systems of linear equations with more equations than unknowns**. Colloquially, these are known as "tall and skinny matrices" (more rows than columns).
 
 
 ## Column picture
@@ -156,9 +158,9 @@ Then, in the left side of the app enter the matrix A and the vector b. You shoul
 
 # Solving the problem
 
-As we have seen above, There is no vector x that will solve the system Ax = b. However, we can approximate the solution by finding the combination p = $\widehat{x}$<sub>1</sub> a<sub>1</sub> + ··· + $\widehat{x}$<sub>n</sub> a<sub>n</sub> that is **closest to a given vector b**. Thus, **p** is the orthogonal projection of **b** onto C(A). You can clearly visualize this in the first tab of the shiny app. 
+As we have seen above, There is no vector x that will solve the system Ax = b. However, we can approximate the solution by finding the vector p = $\widehat{x}$<sub>1</sub> a<sub>1</sub> + ··· + $\widehat{x}$<sub>n</sub> a<sub>n</sub> that is **as close as possible to the vector b**. Thus, **p** is the orthogonal projection of **b** onto C(A). You can clearly visualize this in the first tab of the shiny app. 
 
-As p is in C(A), we can find a vector $\widehat{x}$ that solves the new system: A\widehat{x} = p.
+As p is in C(A), we can find a vector $\widehat{x}$ that solves the new system: A$\widehat{x}$ = p.
 
 To solve this problem, we will follow three steps, which are highlighted in the section "Projection Onto a Subspace" in Chapter 4 of "Introduction to Linear Algebra", by Gilbert Strang. The steps are the following:
 
@@ -190,19 +192,106 @@ $$
 A^Tb - A^T A\widehat{x} = 0
 $$
 
-And to add $$A^T A\widehat{x}$$ to both sides:
+And add $A^T A\widehat{x}$ to both sides:
 
 $$
 A^Tb = A^T A\widehat{x}
 $$
+
 This symmetric matrix A^T^A is invertible if the column vectors are independent. If that's the case, we can multiply both sides by (A^T^A)^-1^ and isolate $\widehat{x}$:
 
+$$
+(A^T A)^{-1} A^Tb = (A^T A)^{-1} A^T A\widehat{x}
+$$
+$$
+(A^T A)^{-1} A^Tb = I \widehat{x}
+$$
 
- 
+$$
+\widehat{x} = (A^T A)^{-1} A^Tb
+$$
+
+Let us apply this formula to the example above. To ease the calculations, we will use the operations in R that we learnt in the previous hands-on session. First, we compute A^T^A:
+
+```{r}
+A <- matrix(c(1, 1, 1, 0, 1, 2), nrow = 3, ncol = 2, byrow = FALSE)
+AT_A <- t(A) %*% A
+AT_A
+```
+
+
+$$
+A^TA = `r write_matex2(t(A))` `r write_matex2(A)` = `r write_matex2(AT_A)`
+$$
+
+Now we find the inverse $(A^T A)^{-1}$:
+
+```{r message=FALSE, warning=FALSE}
+library(matlib)
+library(MASS)
+AT_A_inv <- inv(AT_A)
+AT_A_inv <- fractions(AT_A_inv)
+AT_A_inv
+```
+
+$$
+(A^T A)^{-1} = \begin{bmatrix} 
+5/6 & -1/2\\
+-1/2 & 1/2
+\end{bmatrix}
+$$
+
+Finally, we can solve for $\widehat{x} = (A^T A)^{-1} A^Tb$:
+
+```{r}
+b <- matrix(c(6, 0, 0), nrow = 3)
+x_hat <- AT_A_inv %*% t(A) %*% b
+x_hat
+```
+
+$$
+\widehat{x} = (A^T A)^{-1} A^Tb = \begin{bmatrix} 5/6 & -1/2\\ -1/2 & 1/2 \end{bmatrix} `r write_matex2(t(A))` `r write_matex2(b)` = \begin{bmatrix} 5 \\ -3 \end{bmatrix}
+$$
+
+
+**Note**: if you try to solve it by pencil and paper I would suggest starting at equation $A^Tb = A^T A\widehat{x}$, so you do not need to find an inverse.
+
+
 ## Find p
 
-## Find the projection matrix P
+Let us find p, which remember that is the projection of b onto C(A):
 
+$$
+p = A \widehat{x} = A (A^T A)^{-1} A^Tb
+$$
+
+```{r}
+p <- A %*% x_hat
+p
+```
+
+$$
+p = `r write_matex2(A)` `r write_matex2(x_hat)` = `r write_matex2(p)`
+$$
+
+
+## Find the projection matrix P (optional)
+
+We can generalize this finding to find the projection matrix P, which will describes a linear transformation that takes a vector b and projects in onto C(A). If we look at the equations above, it becomes obvious that we can find $P = A (A^T A)^{-1} A^T$. Projection matrices have two interesting properties:
+
+1. It's symmetric
+
+$$
+P^T = P
+$$
+
+2. If you square it you get P
+
+$$
+P^2 = P
+$$
+
+Can you guess why?
 https://www.khanacademy.org/math/linear-algebra/alternate-bases/orthogonal-projections/v/linear-algebra-another-least-squares-example
 
 # Introduction to ggplot2
