@@ -7,7 +7,6 @@ output:
     toc: true
     toc_float: true
     number_sections: true
-    code_folding: hide
 ---
 
 ```{r setup, include=FALSE}
@@ -287,11 +286,15 @@ x["b"]
 A[c("a", "b"), ]
 
 ## Logical
-x[c(FALSE, TRUE, TRUE)]
-x > 1
-x[x > 1]
+# x[c(FALSE, TRUE, TRUE)]
+# x > 1
+# x[x > 1]
 
+```
 
+**Challenge**: Create a vector from 1 to 100 (included), and then filter it to keep only the multiples of three. You're not allowed to use the `seq()` function.
+
+```{r}
 # Concatenate
 rbind(A, x)
 cbind(A, x)
@@ -314,5 +317,73 @@ A %*% A
 ```
 
 
+## Heatmap
+
+A crucial point in bioinformatics is to be able to visualize matrices. In real-world settings, matrices that harbor biological data (i.e. expression matrices) are to large to read them. In this context, heatmap represent a great alternative to pinpoint patterns in the data. You can read more about heatmaps [here](https://en.wikipedia.org/wiki/Heat_map).
+
+
+We will show you how to plot heatmaps in R using the `pheatmap` package. As an example, we will use a single-cell gene expression matrix of 2,638 peripheral blood mononuclear cells ([PBMC](https://en.wikipedia.org/wiki/Peripheral_blood_mononuclear_cell)). We download this data using the [`Seurat`](https://satijalab.org/seurat/) package, which has become a swiss-knife software to analyze scRNA-seq data. The following chunk of code is executed to get the toy expression matrix, but you are not expected to understand it:
+
+```{r}
+# Get data
+library(Seurat)
+library(SeuratData)
+library(dplyr)
+InstallData("pbmc3k")
+data("pbmc3k")
+pbmc3k
+
+
+# Get expression matrix and reorder columns
+table(pbmc3k$seurat_annotations)
+pbmc3k$barcode <- colnames(pbmc3k)
+pbmc3k <- ScaleData(pbmc3k, features = rownames(pbmc3k))
+sorted_barcodes <- pbmc3k@meta.data %>%
+  dplyr::arrange(seurat_annotations) %>%
+  dplyr::pull("barcode")
+expr_matr <- pbmc3k[["RNA"]]@scale.data[, sorted_barcodes]
+
+
+# Subset to genes of interest (GOI)
+goi <- c("LDHB", "CCR7", "CD3D", "CD3E", "LEF1", "IL32", "IL7R", "CD2", "S100A9",
+         "S100A8", "CD14", "CST3", "LYZ", "FTL", "MS4A1", "CD79A", "CD79B", "VPREB3",
+         "CCL5", "NKG7", "GZMK", "CD8A", "KLRG1", "FCGR3A", "AIF1", "MS4A7", "IFITM3",
+         "RHOC", "CCL4")
+expr_matr <- expr_matr[goi, ]
+
+
+# Create column annotation metadata
+col_metadata <- pbmc3k@meta.data[, "seurat_annotations", drop = FALSE]
+colnames(col_metadata) <- "cell_type"
+```
+
+
+Now, we will plot the heatmap. The `pheatmap()` function has a lot of parameters to fine-tune the visualization, we suggest you explore the documentation executing `?pheatmap`:
+
+
+```{r}
+annotation_colors <-  c("aquamarine", "orange", "green4", "blueviolet", "black",
+                        "coral2", "deepskyblue3", "red", "gold")
+names(annotation_colors) <- levels(col_metadata$cell_type)
+annotation_list <- list(cell_type = annotation_colors)
+pheatmap::pheatmap(
+  expr_matr,
+  cluster_rows = FALSE,
+  cluster_cols = FALSE,
+  show_colnames = FALSE,
+  color = viridis::viridis(30),
+  annotation_col = col_metadata,
+  annotation_colors = annotation_list
+)
+```
+
+
+Note that there are multiple R packages to plot heatmaps. Recently, [`ComplexHeatmap`](https://jokergoo.github.io/ComplexHeatmap-reference/book/) has gained a lot of attention.
+
+# Session Information
+
+```{r}
+sessionInfo()
+```
 
 
