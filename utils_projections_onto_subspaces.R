@@ -31,10 +31,12 @@ plot_projection <- function(b, p, col_space_df) {
   add_trace(x = c(0, b[1]), y = c(0, b[2]), z = c(0, b[3]), type = "scatter3d", mode = "marker+line", name = "b",
             marker = list(size = 10, symbol = "diamond"), line = list(size = 2000, width = 5)) %>%
   add_trace(x = c(0, p[1]), y = c(0, p[2]), z = c(0, p[3]), type = "scatter3d", mode = "line", name = "p",
-            marker = list(size = 10, symbol = "diamond"), line = list(size = 2000, width = 5)) %>%
+            marker = list(size = 10, symbol = "diamond", color = "orange"), line = list(size = 2000, width = 5, color = "orange")) %>%
   add_trace(x = c(b[1], p[1]), y = c(b[2], p[2]), z = c(b[3], p[3]), type = "scatter3d", mode = "line", name = "e",
             marker = list(size = 0.1), line = list(size = 2000, width = 6, height = 6, dash = "dot")) %>%
-  add_mesh(x = ~x, y = ~y, z = ~z, data = col_space_df, opacity = 0.1)
+  add_trace(x = 0, y = 0, z = 0, type = "scatter3d", mode = "marker", name = "origin",
+            marker = list(size = 11, color = "black")) %>%
+  add_mesh(x = ~x, y = ~y, z = ~z, data = col_space_df, opacity = 0.35)
 }
 
 

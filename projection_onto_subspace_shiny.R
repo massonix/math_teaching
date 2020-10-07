@@ -49,7 +49,7 @@ ui <- fluidPage(
           uiOutput("calculation"),
           actionButton("b_in_col_space", "Is b in C(A)?")
         ),
-        tabPanel("Least Squares", plotlyOutput("least_squares_plot")),
+        tabPanel("Least Squares", plotlyOutput("least_squares_plot"))
       )
     )
   )
