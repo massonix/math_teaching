@@ -50,7 +50,6 @@ ui <- fluidPage(
           actionButton("b_in_col_space", "Is b in C(A)?")
         ),
         tabPanel("Least Squares", plotlyOutput("least_squares_plot")),
-        tabPanel("Gram-Schmidt", verbatimTextOutput("test3"))
       )
     )
   )
