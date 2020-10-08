@@ -43,13 +43,7 @@ ui <- fluidPage(
     mainPanel(
       tabsetPanel(
         type = "tabs",
-        tabPanel("Visualization",  plotlyOutput("plot")),
-        tabPanel(
-          "Calculation",
-          uiOutput("calculation"),
-          actionButton("b_in_col_space", "Is b in C(A)?")
-        ),
-        tabPanel("Least Squares", plotlyOutput("least_squares_plot"))
+        tabPanel("Visualization",  plotlyOutput("plot"))
       )
     )
   )
@@ -68,20 +62,6 @@ server <- function(input, output, session) {
     
     # Plot
     plot_projection(input$input_vec, p, col_space_df)
-  })
-  
-  output$calculation <- renderUI({
-    withMathJax(
-      helpText("$$ \\forall A_{3\\times 2}, b_{3\\times 1} 	\\exists x_{2\\times 1} / Ax = b 	\\iff b \\subset C(A)$$")
-    )
-  })
-  
-  output$least_squares_plot <- renderPlotly({
-    # Find projection (p) of b on column space of A (C(A))
-    p <- input$input_mat %*% inv(t(input$input_mat) %*% input$input_mat) %*% t(input$input_mat) %*% as.matrix(input$input_vec)
-    
-    # Plot least squares regression line
-    plot_least_squares(input$input_mat, input$input_vec, p)
   })
 }
 
