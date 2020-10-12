@@ -1,0 +1,264 @@
+%-----------------------------------------------------------------------
+% Beginning of proc-l-template.tex
+%-----------------------------------------------------------------------
+%
+%     This is a topmatter template file for PROC for use with AMS-LaTeX.
+%
+%     Templates for various common text, math and figure elements are
+%     given following the \end{document} line.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%     Remove any commented or uncommented macros you do not use.
+
+\documentclass{proc-l}
+
+%     If you need symbols beyond the basic set, uncomment this command.
+
+\usepackage{amssymb}
+\usepackage{amsmath}
+
+%     If your article includes graphics, uncomment this command.
+%\usepackage{graphicx}
+
+%     If the article includes commutative diagrams, ...
+%\usepackage[cmtip,all]{xy}
+
+
+%     Update the information and uncomment if AMS is not the copyright
+%     holder.
+
+\copyrightinfo{2020}{}
+
+\newtheorem{theorem}{Theorem}[subsection]
+\newtheorem{lemma}[theorem]{Lemma}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{\bf Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{xca}[theorem]{Exercise}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\numberwithin{equation}{section}
+
+
+%aliases
+
+\newcommand{\comment}[1]{}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\rank}[1]{\textrm{rank } {#1}}
+\newcommand{\im}[1]{\textrm{Im}({#1})}
+\newcommand{\x}{\times}
+\renewcommand{\ker}[1]{\textrm{ker}({#1})}
+
+
+% set section default counter
+\setcounter{section}{0}
+
+% do not show page numbers
+\pagenumbering{gobble}
+
+
+\begin{document}
+
+% \title[short text for running head]{full title}
+\title{Systems of linear equations can be seen as projections}
+
+%    Only \author and \address are required; other information is
+%    optional.  Remove any unused author tags.
+
+%    author one information
+% \author[short version for running head]{name for top of paper}
+% \author{Ramon Massoni}
+\address{}
+\curraddr{}
+\email{}
+\thanks{}
+
+%    author two information
+% \author{Ferran Mui\~nos}
+\address{}
+\curraddr{}
+\email{}
+\thanks{}
+
+%    \subjclass is required.
+%    \subjclass[2010]{Primary }
+
+%     \date{\today}
+
+%     \dedicatory{}
+
+%    "Communicated by" -- provide editor's name; required.
+%     \commby{}
+
+%    Abstract is required.
+\begin{abstract}
+Solving a system of linear equations is equivalent to conducting an orthogonal projection in a sense that is made precise below.
+\end{abstract}
+
+\maketitle
+
+\section{Problem statement}
+
+\subsection{First Version of the Problem}
+Given a matrix $A\in \R^{m \x n}$ and a vector $b\in \R^m$, find a vector $v\in\R^n$ such that $Av=b$.
+
+\subsection{} 
+This problem has an exact solution if and only if $\rank{A} = \rank{A\,|\,b}$, or equivalently, if $b \in \textrm{span}\{A_1, \ldots, A_n\}$.
+
+\subsection{} 
+If $A$ is a square, full-rank matrix, then the exact solution to the problem $\hat{v}$ can be given as $\hat{v} = A^{-1}b$.
+
+\subsection{}
+The entries of a solution vector $\hat{v} = (v_1, \ldots, v_n)$ can be thought of as a recipe to carry out a linear combination of the column vectors of $A$, so that the result is exactly $b$.
+
+\subsection{}
+When is the problem not well-defined? Consider the case when $\rank{A} < \rank{[A\,|\,b\,]}$. In this case $b\notin\textrm{span}\{A_1,\ldots,A_n\}$, i.e., $b$ is not a linear combination of the column vectors of $A$.
+
+\subsection{Second Version of the Problem}\label{transform}
+One possible way of relaxing the problem statement would go as follows. Find $\hat v$ such that $A\hat v = \pi(b)$, where $\pi(b)$ is some convenient transform of $b$ satisfying:
+\begin{itemize}
+\item[i] $\pi(b)$ is not too far apart from $b$
+\item[ii] $\pi(b)\in\textrm{span}\{A_1,\ldots,A_n\}$
+\end{itemize}
+
+\subsection{}
+Whenever they exist, solutions of the first version of the problem would also be solutions for the second version, although we cannot expect the converse to be true.
+
+\section{Orthogonal Projection}
+
+\subsection{}
+A linear map $\pi_v: V\to V$ is deemed an orthogonal projection onto a vector $v$ if it maps $v$ onto itself and any vector orthogonal to $v$ to zero.
+
+\subsection{}
+What is the matrix of $\pi_v$? It depends on the basis of $V$ we employ to represent vector coordinates. Fixing an orthonormal basis of $V$, the matrix of $\pi_v$ is simply the rank one square matrix given by $u u^t$, where $u=v/\|v\|$.
+
+\subsection{}
+Let $S$ be a vector subspace of $V$. We can define the orthogonal projection onto $S$ as the linear map $\pi_S: V\to V$ that maps any vector of $S$ to itself and any vector orthogonal to $S$ to zero. 
+
+\subsection{Propostion}
+Suppose that $S=\textrm{span}\{u_1,\ldots, u_n\}$ and let's further assume that the vectors $u_1,\ldots, u_n$ are an orthogonal set. Then the orthogonal projection onto $S$ is given by the following linear map:
+\begin{equation}\label{defproj}
+\pi_{S} = \sum_{i=1}^n \pi_{u_i} = \sum_{i=1}^n \frac{1}{\| u_i \|^2} u_i u_i^t
+\end{equation}
+
+\begin{proof}
+First, we check that any vector $v$ of $S$ is mapped to itself by $\pi_S$. Since $v$ belongs to $S$ we can write $v = \lambda_1 u_1 + \ldots + \lambda_n u_n$. Then
+\begin{align*}
+\pi_S(v) &=  \sum_{i=1}^n \frac{1}{\| u_i \|^2} u_i u_i^t v\\ 
+&= \sum_{i=1}^n \frac{\lambda_i}{\| u_i \|^2} u_i u_i^t u_i = \sum_{i=1}^n \frac{\lambda_i \| u_i \|^2}{\| u_i \|^2} u_i\\
+&= \sum_{i=1}^n \lambda_i u_i = v.
+\end{align*}
+Second, any vector $v$ orthogonal to $S$ is mapped to zero by $\pi_S$. To justify this, observe note that if $v$ is orthogonal to $S$, it is orthogonal to all its generators.
+\end{proof}
+
+\subsection{}
+The projection $\pi_S$ defined in equation \ref{defproj} can be written in matrix form as $A(A^tA)^{-1}A^t$, where $A=[\,u_1\,|\ldots|\,u_n\,]$ denotes the matrix with $u_1,\ldots,u_n$ as column vectors.
+
+\subsection{}
+Note that if the vectors $u_1, \ldots, u_n$ were an orthonormal set, then the matrix expression for $\pi_S$ would be just $AA^t$, since the middle factor $A^tA$ would be the identity matrix.
+
+\subsection{}\label{null-remark}
+Remark that if a vector $u$ is in the null space of $\pi_S$, then it must be orthogonal to $S$. Can you tell why?
+
+\subsection{}
+Now assume that the column vectors of $A$ are linearly independent, but not necessarily orthonormal. We know there is a full-rank, square matrix $E$ such that the matrix $Q=AE$ has orthonormal vectors as columns. Then the projection $\pi_S$ can be simply written in matrix form as $QQ^t$, which we can transform a bit using basic matrix multiplication rules:
+
+\begin{align*}
+QQ^t & = Q(Q^tQ)^{-1}Q^t = (AE)((AE)^t(AE))^{-1}(AE)^t\\ 
+&= AE(E^tA^tAE)^{-1}E^tA^t = AEE^{-1}(A^t A)^{-1}(E^t)^{-1}E^tA^t\\ 
+&= A(A^tA)^{-1}A^t
+\end{align*}
+
+\noindent Which proves the following...
+
+\subsection{Theorem}
+For any matrix $A$ with a basis of $S$ as columns, the matrix of the orthogonal projection $\pi_S$ is given by $A(A^tA)^{-1}A^t$. In other words, the matrix of $\pi_S$ does not depend on a particular choice of a basis for $S$. 
+
+
+\section{Back to the problem}
+
+\subsection{}
+Can the reader suggest one possible transform that serves the purpose of solving the linear system problem as described in section \ref{transform}? We might try the orthogonal projection onto the column space of $A$. Let's denote this linear map simply as $\pi$.
+
+\subsection{}
+Assuming that the columns of $A$ are linearly independent, the orthogonal projection of $b$ onto the column space of $A$ can be given as $\pi(b) = A(A^tA)^{-1}A^tb$. In view of this expression, the vector $\hat v = (A^tA)^{-1}A^tb$ would be a good candidate solution, as it satisfies $A\hat v = \pi_A(b)$. 
+
+\subsection{}
+But it remains to be discussed how the ``not too far'' part from the requirements in section \ref{transform} is achieved with the $\pi$ projection.
+
+\subsection{Propostion}
+The orthogonal projection of a vector $v$ onto a subspace $S$, denoted $\pi_S(v)$, is the closest possible vector in $S$ to $v$, in the following sense: for any $w\in S$, $\|w-v\| \geq \|\pi_S(v) - v\|$.
+
+\begin{proof}
+\noindent
+Suppose the non-trivial case where $v\notin S$. If we set $u=\pi_S(v) - v$ then $u\in\ker{\pi_S}$, which in turn implies that $u$ is orthogonal to $S$. On the other hand, for any $w\in S$ we have $w = \pi_S(v) + r$, for some other $r\in S$. Then $w - v = \pi_S(v) + r - \pi_S(v) + u = r + u$ with $u$ orthogonal to $r$, whereas $\pi_S(v) - v = u$. Consequently,
+\[
+\|w - v\|^2 = (r + u)^t(r + u) = \|r\|^2 + \|u\|^2 \geq \|u\|^2 = \|\pi_S(v) - v\|^2
+\]
+\end{proof}
+
+
+%    Text of article.
+
+%    Bibliographies can be prepared with BibTeX using amsplain,
+%    amsalpha, or (for "historical" overviews) natbib style.
+\bibliographystyle{amsplain}
+%    Insert the bibliography data here.
+
+\end{document}
+
+\comment{
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%    Templates for common elements of a journal article; for additional
+%    information, see the AMS-LaTeX instructions manual, instr-l.pdf,
+%    included in the PROC author package, and the amsthm user's guide,
+%    linked from http://www.ams.org/tex/amslatex.html .
+
+%    Section headings
+\section{}
+\subsection{}
+
+%    Ordinary theorem and proof
+\begin{theorem}[Optional addition to theorem head]
+% text of theorem
+\end{theorem}
+
+\begin{proof}[Optional replacement proof heading]
+% text of proof
+\end{proof}
+
+%    Figure insertion; default placement is top; if the figure occupies
+%    more than 75% of a page, the [p] option should be specified.
+\begin{figure}
+\includegraphics{filename}
+\caption{text of caption}
+\label{}
+\end{figure}
+
+%    Mathematical displays; for additional information, see the amsmath
+%    user's guide, linked from http://www.ams.org/tex/amslatex.html .
+
+% Numbered equation
+\begin{equation}
+\end{equation}
+
+% Unnumbered equation
+\begin{equation*}
+\end{equation*}
+
+% Aligned equations
+\begin{align}
+  &  \\
+  &
+\end{align}
+
+%-----------------------------------------------------------------------
+% End of proc-l-template.tex
+%-----------------------------------------------------------------------
+}

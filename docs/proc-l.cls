@@ -29,12 +29,12 @@
 
 \LoadClass{amsart}[1996/10/24]
 
-\def\publname{Elements of Mathematics}
+% \def\publname{Elements of Mathematics}
 
-\def\ISSN{0002-9939}
+% \def\ISSN{0002-9939}
 
-\copyrightinfo{\currentyear}%    % copyright year
-  {Ramon Massoni \& Ferran Mui\~nos}% copyright holder
+% \copyrightinfo{\currentyear}%    % copyright year
+% {Ramon Massoni \& Ferran Mui\~nos}% copyright holder
 
 % set "communicated by" line
 \def\@maketitle{%

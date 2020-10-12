@@ -1,0 +1,249 @@
+%-----------------------------------------------------------------------
+% Beginning of proc-l-template.tex
+%-----------------------------------------------------------------------
+%
+%     This is a topmatter template file for PROC for use with AMS-LaTeX.
+%
+%     Templates for various common text, math and figure elements are
+%     given following the \end{document} line.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%     Remove any commented or uncommented macros you do not use.
+
+\documentclass{proc-l}
+
+%     If you need symbols beyond the basic set, uncomment this command.
+%\usepackage{amssymb}
+
+%     If your article includes graphics, uncomment this command.
+%\usepackage{graphicx}
+
+%     If the article includes commutative diagrams, ...
+%\usepackage[cmtip,all]{xy}
+
+
+%     Update the information and uncomment if AMS is not the copyright
+%     holder.
+
+\copyrightinfo{2020}{}
+
+\newtheorem{theorem}{Theorem}[subsection]
+\newtheorem{lemma}[theorem]{Lemma}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{\bf Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{xca}[theorem]{Exercise}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\numberwithin{equation}{section}
+
+%aliases
+
+\newcommand{\comment}[1]{}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\rank}[1]{\textrm{rank}({#1})}
+\newcommand{\im}[1]{\textrm{Im}({#1})}
+\newcommand{\x}{\times}
+\newcommand{\id}[1]{\textrm{Id}_{{#1}\times {#1}}}
+\renewcommand{\ker}[1]{\textrm{ker}({#1})}
+\renewcommand{\span}[1]{\textrm{span}\{ {#1} \}}
+
+% set section default counter
+\setcounter{section}{1}
+
+% do not show page numbers
+\pagenumbering{gobble}
+
+
+\begin{document}
+
+% \title[short text for running head]{full title}
+\title{Understading linear maps\\ with Gauss-Jordan elimination}
+
+%    Only \author and \address are required; other information is
+%    optional.  Remove any unused author tags.
+
+%    author one information
+% \author[short version for running head]{name for top of paper}
+% \author{Ramon Massoni}
+\address{}
+\curraddr{}
+\email{}
+\thanks{}
+
+%    author two information
+% \author{Ferran Mui\~nos}
+\address{}
+\curraddr{}
+\email{}
+\thanks{}
+
+%    \subjclass is required.
+%    \subjclass[2010]{Primary }
+
+%     \date{\today}
+
+%     \dedicatory{}
+
+%    "Communicated by" -- provide editor's name; required.
+%     \commby{}
+
+%    Abstract is required.
+\begin{abstract}
+We provide a condensed proof of the fundamental theorem of linear algebra in a Gauss-Jordan elimination fashion.
+\end{abstract}
+
+\maketitle
+
+\subsection{}
+We denote $\R^{m \x n}$ the collection of all matrices of shape $m\x n$.
+
+\subsection{}
+Any matrix $A\in\R^{m\times n}$ is associated with a linear map that we can denote $f_A:\R^n\to\R^m$. 
+
+\subsection{}
+Column-wise elementary operations can be of either of three kinds:
+\begin{enumerate}
+\item Permutation of columns.
+\item Replacing a column $c_i$ with $\lambda c_i$ with $\lambda\neq 0$.
+\item Replacing a column $c_i$ with $c_i + \mu c_j$ for any $\mu$.
+\end{enumerate}
+We denote $e(A)$ the transform of a matrix $A$ by a given elementary operation $e$.
+
+\subsection{}
+Hereinafter our discussion will be based entirely on column-wise operations, so we will drop ``column-wise'' and ``column'' from all our statements whenever possible.
+
+\subsection{}
+Each elementary operation of $A$ is equivalent to multiplying $A$ by an appropriate matrix $E \in \R^{n\times n}$. Hence, we say that $E$ is the matrix representing the elementary operation $e$ whenever $e(A) = AE$ for all possible matrices $A$.
+
+\subsection{}
+Note that elementary operations preserve the rank, i.e., $\rank{A} = \rank{e(A)} = \rank{AE}$. Can you see why?
+
+\subsection{}
+In Gauss-Jordan elimination we always keep track of two matrices, that we can simply represent as a tuple $(A, B)$ where $A\in\R^{m\x n}$ and $B\in\R^{n\x n}$. We convene $(A, B) \sim (A', B')$ to mean that $(A', B')$ results from $(A, B)$ by applying the same sequence of elementary operations to both matrices.
+
+\subsection{}
+Gauss-Jordan elimination is the method whereby the pair $(A, \id{n})$ is transformed, by means of applying a sequence of elementary operations, into another pair $(L, B)$ where $L$ has a canonical form known as ``reduced echelon form''. This means that $L$ satisfies the following requirements:
+\begin{enumerate}
+\item $L$ is a lower column echelon matrix.
+\item The leading entries of $L$ are $1$.
+\item The leading entries of $L$ are the only non-zero entries in their row. 
+\end{enumerate}
+Following our notation: $(A, \id{n})\sim (L, B)$. 
+
+\subsection{}
+Given an input matrix $A$, Gauss-Jordan elimination leads to a unique matrix $L$ in reduced echelon form. We can stress this fact by defining a Gauss-Jordan algorithm $\textrm{GJ}: A\mapsto L(A)$ that accepts $A$ as input and returns its unique reduced column echelon form.
+
+\subsection{Proposition}
+If $(A, \id{n}) \sim (L, B)$ then $L=AB$.
+\begin{proof}
+Let $E = E_1\cdots E_k$ the product of the matrices encoding the elementary operations that have been applied. By definition $L = AE$ and $B = \id{n} E = E$, so it is clear that $B=E$, i.e., $B$ keeps track of all the elementary operations that have been applied to A that give $L$. It follows that $L=AB$.
+\end{proof}
+
+\subsection{}
+Observe that $\rank{B} = n$. Can you figure out why?
+
+\subsection{Proposition}
+If $A$ is a square, full-rank matrix, then $L(A) = \id{n}$ and $B=A^{-1}$.
+\begin{proof}
+If $(A, \id{n}) \sim (\id{n}, B)$ for some matrix $B$, then we know by the previous discussion that $\id{n} = AB$, so $B=A^{-1}$.
+\end{proof}
+
+\subsection{}
+For the next discussion, let $(A, \id{n}) \sim (L, B)$, with $L$ in reduced echelon form. Let $B=[\;B_1 \;| \ldots |\; B_n\;]$ and $L=[\;L_1\;|\ldots|\; L_r\;|\;0\;|\ldots|\;0\;]$ specified by their respective columns, where $L_1,\ldots,L_r$ are non-zero column vectors.
+
+\subsection{Theorem}
+$\rank{A} = r$, where $r$ is the number of non-zero columns in $L$. Moreover, $L_1,\ldots,L_r$ form a basis of the column space of $A$, denoted $C(A)$. Therefore, $\dim{C(A)} = r$.
+
+\subsection{}
+Observe that the last $n - r$ columns of $L$ are zero. What does this mean?
+
+\subsection{Theorem}
+$B_1, \ldots, B_{n-r}$ form a basis of the null-space of $A$, denoted $N(A)$.
+\begin{proof}
+The following are known facts:
+\begin{enumerate}
+\item $B_1, \ldots, B_n$ is a basis of $\R^n$; in particular, any subset is linearly independent.
+\item The vectors $L_i = AB_i$ for each $1\leq i\leq r$ form a linearly independent set.
+\item The vectors $L_i=AB_i$ are zero for $r + 1\leq i\leq n$. Consequently, 
+\[
+S=\span{B_i\;|\; r + 1\leq i \leq n} \} \subset N(A).
+\]
+\end{enumerate}
+Let's check that $N(A)\subset S$. By (1) we can write any $v\in N(A)$ as a linear combination $v=\sum_{i=1}^n\lambda_i B_i$. From the fact that $v\in N(A)$ and (3), it follows that $0 = Av = \sum_{i=1}^r \lambda_i AB_i = \sum_{i=1}^r \lambda_i L_i$. By (2) this cannot hold unless $\lambda_i = 0$ for $i=1,\ldots, r$. Then $v\in S$.
+\end{proof}
+
+\subsection{}
+It follows that $\dim{N(A)} = n - r$.
+
+
+\subsection{Fundamental Theorem of Linear Algebra}
+For any matrix $A\in\R^{m\times n}$ the following identity holds:
+\[
+\dim{N(A)} + \dim{C(A)} = n.
+\]
+
+%    Text of article.
+
+%    Bibliographies can be prepared with BibTeX using amsplain,
+%    amsalpha, or (for "historical" overviews) natbib style.
+\bibliographystyle{amsplain}
+%    Insert the bibliography data here.
+
+\end{document}
+
+\comment{
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%    Templates for common elements of a journal article; for additional
+%    information, see the AMS-LaTeX instructions manual, instr-l.pdf,
+%    included in the PROC author package, and the amsthm user's guide,
+%    linked from http://www.ams.org/tex/amslatex.html .
+
+%    Section headings
+\section{}
+\subsection{}
+
+%    Ordinary theorem and proof
+\begin{theorem}[Optional addition to theorem head]
+% text of theorem
+\end{theorem}
+
+\begin{proof}[Optional replacement proof heading]
+% text of proof
+\end{proof}
+
+%    Figure insertion; default placement is top; if the figure occupies
+%    more than 75% of a page, the [p] option should be specified.
+\begin{figure}
+\includegraphics{filename}
+\caption{text of caption}
+\label{}
+\end{figure}
+
+%    Mathematical displays; for additional information, see the amsmath
+%    user's guide, linked from http://www.ams.org/tex/amslatex.html .
+
+% Numbered equation
+\begin{equation}
+\end{equation}
+
+% Unnumbered equation
+\begin{equation*}
+\end{equation*}
+
+% Aligned equations
+\begin{align}
+  &  \\
+  &
+\end{align}
+
+%-----------------------------------------------------------------------
+% End of proc-l-template.tex
+%-----------------------------------------------------------------------
+}
