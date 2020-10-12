@@ -21,7 +21,7 @@ ui <- fluidPage(
     sidebarPanel(
       matrixInput(
         "input_mat",
-        label = "Input 3x2 matrix",
+        label = "Matrix A",
         value = matrix(c(1, 0, 0, 0, 1, 0), nrow = 3, ncol = 2, byrow = FALSE),
         rows = list(names = FALSE),
         cols = list(names = FALSE),
@@ -31,7 +31,7 @@ ui <- fluidPage(
       ),
       matrixInput(
         "input_vec",
-        label = "Input vector b",
+        label = "Vector b",
         value = matrix(c(1, 0, 0), nrow = 3, ncol = 1, byrow = FALSE),
         rows = list(names = FALSE),
         cols = list(names = FALSE),
@@ -43,10 +43,7 @@ ui <- fluidPage(
     mainPanel(
       tabsetPanel(
         type = "tabs",
-        tabPanel("Visualization",  plotlyOutput("plot")),
-        tabPanel("Calculation", verbatimTextOutput("test1")),
-        tabPanel("Least Squares", verbatimTextOutput("test2")),
-        tabPanel("Gram-Schmidt", verbatimTextOutput("test3"))
+        tabPanel("Visualization",  plotlyOutput("plot"))
       )
     )
   )
@@ -70,3 +67,7 @@ server <- function(input, output, session) {
 
 # Run shiny application
 shinyApp(ui, server)
+
+
+
+# 

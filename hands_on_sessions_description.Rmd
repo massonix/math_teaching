@@ -1,0 +1,405 @@
+---
+title: "Hands-on sessions Linear Algebra"
+author: "Ferran Muiños and Ramon Massoni-Badosa"
+date: "7/2/2020"
+output: 
+  BiocStyle::html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, out.width = "100%", fig.align='center', 
+                      message=FALSE, warning = FALSE)
+options(width = 1200)
+```
+
+# Introduction
+
+The objective of this document is to brainstorm and describe the 3 hands-on sessions in linear algebra of the course "Elements of Mathematics" in the Master in Bioinformatics for Health Sciences at UPF. The preliminary titles for the sessions are the following:
+
+- Linear transformations and the fundamental theorem of linear algebra.
+- Projections onto subspaces and least squares.
+- Singular Value Decomposition and Principal Component Analysis.
+
+More broadly, the objectives of these sessions will be:
+
+- Illustrate the geometric intuition behind the most important linear algebra topics and algorithms covered in the course. To this end, we will use dynamic and interactive visualizations with [shiny](https://shiny.rstudio.com/) and [plotly](https://plotly.com/r/).
+- Proof some of these theorems. Besides understanding the geometry, we aim to provide students with enough confidence to demonstrate and reach conclusions from scratch.
+- Showcase the usability of linear algebra in real-world biological problems. More specifically, we will show how orthogonal projections and SVD are used to derive least squares regression lines and PCA, respectively.
+- Teach how to perform and visualize linear algebra computations with [R](https://www.r-project.org/about.html), an open-source programming language widely used in statistics and genomics.
+
+
+# Sessions
+
+## Linear transformations and the fundamental theorem of linear algebra
+
+### Pre-requisites
+
+#### Material
+One week before the session, students should check this material and be familiar with the corresponding concepts:
+
+Linear transformations describe functions that map vectors from one space to another, and they are described using matrices. Watch:
+
+- [Linear transformations and matrices, by 3blue1brown](https://www.youtube.com/watch?v=kYB8IZa5AuE&list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab&index=3).
+- [Guess the matrix that describes the transformation](https://en.khanacademy.org/math/linear-algebra/matrix-transformations/linear-transformations/a/practice-associating-matrices-with-transformations).
+
+Matrix multiplication describe composition of function. That is, the linear map described by the product of two matrices equals the linear maps applied by the 2 matrices independently and successively. Watch:
+
+- [Matrix multiplication as composition](https://www.youtube.com/watch?v=XkY2DOUCWMU&list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab&index=4)
+
+If and only if the column vectors of a matrix are linearly independent, then the null space contains only the 0 vector. Watch:
+
+- [More on linear independence](https://en.khanacademy.org/math/linear-algebra/vectors-and-spaces/linear-independence/v/more-on-linear-independence)
+- [Relation between linear independence and null space](https://en.khanacademy.org/math/linear-algebra/vectors-and-spaces/null-column-space/v/null-space-3-relation-to-linear-independence)
+
+
+#### Install software
+
+- [R 4.0](https://cran.r-project.org/doc/manuals/r-devel/R-admin.html)
+- [Rstudio](https://rstudio.com/products/rstudio/download/)
+- [Bioconductor](https://www.bioconductor.org/install/)
+- [pHeatmap](https://cran.r-project.org/web/packages/pheatmap/pheatmap.pdf)
+- [Seurat](https://cran.r-project.org/web/packages/Seurat/index.html)
+- [SeuratData](https://github.com/satijalab/seurat-data)
+
+
+### Objectives
+
+- Grasp the geometry behind linear transformation.
+- Create the matrix that defines a basic linear transformation.
+- Understand matrix multiplication as composition of linear maps.
+- Derive the fundamental theorem of linear algebra (dim(C(A) + dim(N(A)) = n))
+- Comprehend relation between rank, null space, determinant and invertibility.
+- Create, subset, join and visualize matrices in R. Perform basic linear algebra operations (addition, multiplication, etc.)
+
+
+### Description of the session
+
+#### Reminder of linear transformations (~10 min)
+
+Here, we will reinforce the main conclusions of the class that explained linear maps. Most important, we want to give a clear understanding of this three properties:
+
+1. A linear map is completely defined by where it takes the basis vectors.
+2. Ax = x1·a1 + x2·a2 + ... + xn·an = b: Think of matrix-vector product as a linear combination of the column vectors of A defined by the coordinates of x.
+3. A determinant can be understood as the factor by which a unit of "space" (space = segment, square, cube, etc.) is multiplied after a linear map is applied.
+
+
+#### Shiny app walkthrough (~5 min)
+
+Show the students how to use the [shiny app](https://massonix.shinyapps.io/linear_transformations/).
+
+
+#### Reverse engineer linear maps (~1h)
+
+Once they understand the concepts of linear map and know how to use the app, students should be able to guess the matrix A that describes basic linear transformations. Moreover, we want to build the intuition for how the concepts of rank, null space, determinant and invertibility interact. Here are some examples of basic transformations they could perform:
+
+Create a matrix A that...
+
+1. expands space by a factor of 2 in all axis.
+2. shrinks space to half its initial value
+3. reflects every vector across the x = y line
+4. rotates every vector by 30º (hint: use unit circle)
+5. Smear
+
+For each transformation, they should be able to answer these questions:
+
+- Which is the determinant of A?
+- Which is the dimension of the null space?
+- Is the matrix invertible?
+- Are the column vectors linearly independent?
+
+
+Secondly, students should be able to compose linear transformations using matrix multiplication. For instance, they should check that the product of the following matrices is the same as applying them separately:
+
+- Shrinkage + reflection
+- Rotation + Smear
+
+Challenge: ask them if order matters. In other words, is the final transformation the same for AB than for BA? Use this example to make the point that matrix multiplication is not usually commutative.
+
+Finally, students should be able to create linear transformations that achieve the following:
+
+- 2D: Square --> line
+- 3D: Cube --> plane
+- 3D: Cube --> line
+
+
+#### Fundamental Theorem Linear Algebra via Gauss-Jordan
+
+TBD
+
+#### Matrix algebra with R (~45 min)
+
+This section aims to teach the fundamentals of R to be able to perform linear algebra operations and visualize them. We will start by teaching the basic data structures, categorized by dimensionality (1D: atomic vectors + lists; 2D: matrices + data.frames) and whether they can contain only one value type (homogenous: atomic vectors and matrices) or more than one (heterogeneous: lists and data.frames). Moreover, here I showcase an example of the main functions we should cover in the hands-on session:
+
+
+
+```{r}
+# Load packages
+library(Seurat)
+library(SeuratData)
+library(pheatmap)
+
+
+# Create
+x <- c(1, 2, 3)
+A <- matrix(c(1, 2, 3, 4, 5, 6, 7, 8, 9), nrow = 3, ncol = 3, byrow = FALSE)
+x 
+A
+
+
+# Get dimensions
+length(x)
+dim(A)
+nrow(A)
+ncol(A)
+
+
+# Name
+names(x) <- c("1", "2", "3")
+rownames(A) <- c("a", "b", "c")
+colnames(A) <- c("x", "y", "z")
+x
+A
+
+# Subset
+## Numeric
+x[1]
+x[c(2, 3)]
+x[c(3, 3)]
+A[1:3, -2]
+
+## Character
+x["b"]
+A[c("a", "b"), ]
+
+## Logical
+x[c(FALSE, TRUE, TRUE)]
+x > 1
+x[x > 1]
+
+
+# Concatenate
+rbind(A, x)
+cbind(A, x)
+
+
+# Transpose
+t(A)
+
+
+# Matrix-vector operations
+A + x
+A * x
+A %*% x
+t(x[1] %*% A[, 1]) + t(x[2] %*% A[, 2]) + t(x[3] %*% A[, 3])
+
+# Matrix-Matrix operations
+A + A
+A * A
+A %*% A
+
+
+# Heatmap
+# InstallData("panc8")
+# data("panc8")
+# scRNA_seq_mat <- as.matrix(panc8[["RNA"]]@data)
+# pheatmap(
+#   scRNA_seq_mat,
+#   cluster_cols = FALSE,
+#   cluster_rows = FALSE,
+#   labels_col = FALSE,
+#   labels_row = FALSE
+# )
+```
+
+
+### To-do list
+
+1. Decide how to teach the fundamental theorem of linear algebra using the "Gauss-Jordan" tab of the shiny app.
+2. Tell Haffyd that we will teach pheatmap + ggplot2 in the master. Avoid overlapping between BDA and MAT.
+
+
+## Projections onto subspaces and least squares
+
+Problem: solve a system of linear equation when the output vector is not in the column space of the matrix A (C(A)). This is a typical case when we have more equations than unknowns (thin, tall matrices), and least squares represents a practical and tangible example of it.
+
+
+### Pre-requisites
+
+
+#### Material
+
+- Watch [this Khan Academy video](https://en.khanacademy.org/math/linear-algebra/alternate-bases/orthogonal-projections/v/linear-algebra-least-squares-approximation) explaining the strategy to follow to understand the problem at hand and the strategy to follow to solve it. 
+- Read points 2.3 and 3 of the iconic ["Tidy Data"](https://vita.had.co.nz/papers/tidy-data.pdf) paper by Hadley Wickham.
+- Read this article summarising the main points of ["The Grammar of Graphics"](https://towardsdatascience.com/a-comprehensive-guide-to-the-grammar-of-graphics-for-effective-visualization-of-multi-dimensional-1f92b4ed4149).
+
+
+#### Install software
+
+- [tidyverse](https://www.tidyverse.org/)
+- [gapminder](https://cran.r-project.org/web/packages/gapminder/index.html)
+
+### Objectives
+
+- Teach how to project data onto a vector subspace in an intuitive and practical manner. The intuition will come from projecting an output vector Ax = b onto the column space of A; and the applicability will come from using this concepts to fit a least squares regression line to the iconic [GapMinder dataset](https://www.gapminder.org/tools/?from=world#$chart-type=bubbles).
+- Explain how to use ggplot2 to obtain publication-quality graphics. 
+
+
+### Description of the session
+
+#### Introduce the problem
+
+Again, we aim to solve a linear system of equations that has more equations than unknowns. From a "column-centric" perspective, this tranlates into a transformation Ax=b where b is not in the column space of A. To solve it, we can find the vector p such that **p is the closest possible to b**. This notion of "the closest possible" trasnlates into the error e = b-p being orthogonal to C(A). Thus, we leverage this fact to project b onto C(A) to obtain p, and solve for x* in the new transformation: Ax* = p. This problem should be introduce in the khan academy video right before the class, and with a few slides at the beginning.
+
+#### Shiny app walkthrough
+
+Once we have a clear understanding of the problem, we introduce the shiny app. This time, the input matrix is a dummy 3x2 matrix A, which we use as an example of a "tall and skinny" matrix, and we will generalize all our conclusions from here. The first step is to geometrically illustrate the problem, which is done by projecting a vector b rooted at the origin onto C(A),  which is represented as a plane in 3D (span of the 2 column vectors). From here, we move to the second tab, which will contain the computation. The computation will be done following the 3 steps taught by our god Gilbert Strang:
+
+1. Find x^: Leverage the fact that e is perpendicular to the C(A). Thus, e = b - p = b - Ax^; At(b-Ax^) = 0; Atb - AtAx^ = 0; Atb = AtAx^; x^=(AtA)-1Atb
+2. Find p=Ax^
+3. Find P: take advantage of this section to show how to generally find a matrix P that projects a vector b onto a vector subspace. Show the 2 important properties of P: (1) P^2 = P; (2) Pt = P
+
+Finally, illustrate the practical example of least squares regression. In this case, we have 3 points in an xy plane, and we want to fit a line that minimizes the error vector e. The 2 unknowns are the slope and the y-intercept, and together they represent the vector x^. Show the tab "least squares" for a visual representation of the problem.
+
+**Note**: Being realistics, there is not much time to illustrate Gram-Schmidt (A=QR) in this hands-on sessions, and it would be too much information for just 2 hours.
+
+#### Tidy data, grammar of graphics and ggplot2
+
+Here, we will teach a basic skill that was not taught in our year and we find essential: high-quality graphics with ggplot2. Before, we need to explain the basics of tidy data, which is the input to ggplot2:
+
+1. Observations are rows
+2. Variables are columns
+3. Observational units form a table
+
+Moreover, ggplot2 is built based on *the grammar of graphics* philosophy. Thus, we should spend a few minutes introducing it.
+
+Finally, to give a quick example of ggplot2 plotting, we can reproduce the gapminder scatterplot, which correlates life expectancy and GDP for each country:
+
+```{r}
+# Plot gapminder data, including a regression line in the scatter plot
+library(tidyverse)
+gapminder::gapminder %>% 
+  head()
+gapminder::gapminder %>% 
+  ggplot(aes(gdpPercap, lifeExp, color = continent, size = pop)) +
+    geom_point() +
+    geom_smooth(method = "lm", se = FALSE, color = "black") +
+    scale_x_log10() +
+    labs(x = "Income", y = "Life Expectancy") +
+    theme_classic()
+
+
+# Actually fit the regression model
+lm_model <- lm(lifeExp ~ log10(gdpPercap), data = gapminder::gapminder)
+slope <- lm_model$coefficients[2]
+y_intercept <- lm_model$coefficients[1]
+print(slope)
+print(y_intercept)
+```
+
+On the final part of the session, students should derive the least squares regression line themselves using the math skills taught in this hands-on session and the R skills taught in the previous session. Since this can be quite challenging, I propose introducing 3 levels of difficulty (in increasing order):
+
+1. We give the R markdown that reproduces the least squares regression line (comments + code), and students that don't feel that comfortable can execute it line by line, thinking about and figuring out what and the code does and why it does so.
+2. Same Rmd as before, this time with comments only.
+3. We just provide the problem, and those students who feel like taking the challenge should right an R function that receives a data frame as input with 2 target variables, and outputs the intercept and slope (using their custom code, not built-in functions).
+
+
+### To-do list
+
+- Define what to include in the "computation" tab of the shiny app, and how to display it.
+
+
+## Principal Component Analysis: intuition, computation, and usability
+
+### Pre-requisites
+
+Understand the following concepts before attending the class:
+
+1. Total sum of squares
+2. Covariance and correlation
+3. Orthonormal matrices preserve the norm and scalar product.
+4. A symmetric matrix has n orthogonal eigenvectors.
+5. V --> AtA, U --> AAt
+
+Read the first pages of the following tutorial: https://www.cs.cmu.edu/~elaw/papers/pca.pdf.
+
+
+### Objectives
+
+- Understand the objectives of PCA in an intuitive way: maximize variance, eliminate redundancy and noise.
+- Compute PCA using Singular Value Decomposition (SVD).
+- Use PCA in real-world case studies to answer biological questions.
+
+
+
+### Description of the session
+
+TBD
+
+Why do we want to reduce the dimensionality?
+
+* Plot high-dimensional data on a 2D screen/paper.
+* Reduce computational complexity
+
+# Introduce dummy datasets:
+
+*Note*: these datasets are already defined in the PCA tutorial I gave to the wet-lab
+
+1. Sports athletes: measure different body stats for 3 sports athletes:  LeBron James, Kobe Bryant and Ronaldo Luids Nazario de Lima.
+2. PBMC
+
+The purpose of this datasets is that they should contain:
+1. Redundancy: for example, height measured in inches or centimeters.
+2. Noise: ie 100.3512 kg vs 100.3567 kg.
+3. Need to center data
+
+### Why PCA?
+
+
+Objective of PCA: express observations as vectors in Rp / p < n using a basis that maximizes variability and eliminates redundancy and noise in our measurements.
+
+How do we quantify redundancy and variability in our data matrix? Covariance matrix (AtA):
+
+*Leading diagonal: variance of every variable.
+*Off-diagonal terms: covariance between pairwise variables (reduncancy).
+
+Principal components: sequence of projections of the data, mutally uncorrelated and ordered in variance.
+
+We want to reduce the dimensionality (p < n), in a way that we encapsulate as much variability as possible. 
+
+How do we express "mutually uncorrelated" in algebraic terms? Orthogonal vectors. PCs are the eigenvectors of the matrix A, which by definition are orthogonal (symmetric matrices). We will see in the following hands-on session how PCA maximizes variability.
+
+#### PCA by SVD
+
+Change of basis: linear combination of features of A to obtain each PC (check modern statistics for modern biology)
+
+AV = U sigma
+
+Interprete matrices V, U and Sigma in terms of PCA:
+
+V: loadings. Importance: say that high + scores reflect a correlated set of variables that explain the variability in PC, high - scores anticorrelated with PC.
+U: principal components
+Sigma: variance explained by each PC (U is orthonormal, thus the norm of each PC is 1 * sigma).
+
+
+#### Case studyes
+
+Bulk RNA-seq: show that PCA allows us to visualize high-dimensional data. Use some cancer bulk RNA-seq dataset to cluster samples
+scRNA-seq: theoretical explanation of sources of variability in scRNA-seq (technical and biological). Correlation of PC1/2 with library size, sampling time, cell cycle (metagenes). Scree plot.
+
+
+2nd part of this session: Principal Component Analysis
+
+- Link the matrices in the SVD to their meanings in PCA:
+ *V = gene loadings
+ *Sigma = sum of squares of each PC
+ *U = Principal Components
+- Show them how to perform PCA with prcomp and svd functions
+- Explain the purpose of PCA with a tangible example: scRNA-seq
+  * Reduce noise, redundancy and computational power.
+  * Curse of dimensionality in data science.
+  * Choose a better basis to represent each cell: from genes --> metagenes or gene programmes
+  * How do we measure redundancy? off-diagonal entries in the correlation matrix.
+  * Second purpose: plotting high dimensional data onto 2D.

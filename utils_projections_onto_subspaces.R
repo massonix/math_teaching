@@ -25,13 +25,63 @@ calculate_col_space <- function(A, b, p) {
   col_space_df
 }
 
+
 plot_projection <- function(b, p, col_space_df) {
   plot_ly() %>%
   add_trace(x = c(0, b[1]), y = c(0, b[2]), z = c(0, b[3]), type = "scatter3d", mode = "marker+line", name = "b",
             marker = list(size = 10, symbol = "diamond"), line = list(size = 2000, width = 5)) %>%
   add_trace(x = c(0, p[1]), y = c(0, p[2]), z = c(0, p[3]), type = "scatter3d", mode = "line", name = "p",
-            marker = list(size = 10, symbol = "diamond"), line = list(size = 2000, width = 5)) %>%
+            marker = list(size = 10, symbol = "diamond", color = "orange"), line = list(size = 2000, width = 5, color = "orange")) %>%
   add_trace(x = c(b[1], p[1]), y = c(b[2], p[2]), z = c(b[3], p[3]), type = "scatter3d", mode = "line", name = "e",
             marker = list(size = 0.1), line = list(size = 2000, width = 6, height = 6, dash = "dot")) %>%
-  add_mesh(x = ~x, y = ~y, z = ~z, data = col_space_df, opacity = 0.1)
+  add_trace(x = 0, y = 0, z = 0, type = "scatter3d", mode = "marker", name = "origin",
+            marker = list(size = 11, color = "black")) %>%
+  add_mesh(x = ~x, y = ~y, z = ~z, data = col_space_df, opacity = 0.35)
+}
+
+
+plot_least_squares <- function(A, b, p) {
+  df <- data.frame(
+    x = c(A[, 2], A[, 2]),
+    y = c(b, p),
+    vector = c(rep("b", length(b)), rep("p", length(p)))
+  )
+  gg <- ggplot(df, aes(x, y, color = vector, shape = vector)) +
+    geom_point(size = 2.5) +
+    scale_color_manual("", values = c("#1F77B4", "#FF7F0F")) +
+    scale_shape_manual("", values = c(4, 16)) +
+    theme_bw()
+  gg <- gg +
+    geom_line(data = dplyr::filter(df, vector == "p"), color = "black") +
+    geom_segment(
+      aes(
+        x = df$x[1],
+        y = df$y[df$vector == "b"][1],
+        xend = df$x[1],
+        yend = df$y[df$vector == "p"][1]
+      ),
+      color = "#2DA02C",
+      linetype = "dashed"
+    ) +
+    geom_segment(
+      aes(
+        x = df$x[2],
+        y = df$y[df$vector == "b"][2],
+        xend = df$x[2],
+        yend = df$y[df$vector == "p"][2]
+      ),
+      color = "#2DA02C",
+      linetype = "dashed"
+    ) +
+    geom_segment(
+      aes(
+        x = df$x[3],
+        y = df$y[df$vector == "b"][3],
+        xend = df$x[3],
+        yend = df$y[df$vector == "p"][3]
+      ),
+      color = "#2DA02C",
+      linetype = "dashed"
+    )
+  ggplotly(gg)
 }
