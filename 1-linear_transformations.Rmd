@@ -19,64 +19,35 @@ options(width = 1200)
 
 This session will focus on linear maps. Specifically, we aim to accomplish the following objectives:
 
-1. Leverage the geometry of linear maps to understand how the concepts of rank, null space, determinant and invertibility are connected.
+1. Relate the geometry of linear maps to the concepts of rank, null space, determinant and invertibility.
 2. Create, subset, join, operate and visualize matrices in R.
 
 
 # Pre-requisites
 
-Before attending this session, you should have done the following:
-
-## Material
-
-Watch the following videos:
-
-- [Linear transformations and matrices, by 3blue1brown](https://www.youtube.com/watch?v=kYB8IZa5AuE&list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab&index=3).
-- [Matrix multiplication as composition](https://www.youtube.com/watch?v=XkY2DOUCWMU)
-- [More on linear independence](https://en.khanacademy.org/math/linear-algebra/vectors-and-spaces/linear-independence/v/more-on-linear-independence)
-- [Relation between linear independence and null space](https://en.khanacademy.org/math/linear-algebra/vectors-and-spaces/null-column-space/v/null-space-3-relation-to-linear-independence)
-
-
-Do the following exercises:
-
-- [Guess the matrix that describes the transformation](https://en.khanacademy.org/math/linear-algebra/matrix-transformations/linear-transformations/a/practice-associating-matrices-with-transformations).
-
-
-Check that you can access the following shiny app:
-
-[https://massonix.shinyapps.io/linear_transformations/](https://massonix.shinyapps.io/linear_transformations/)
-
-
-## Install software
-
-- [R 4.0](https://cran.r-project.org/doc/manuals/r-devel/R-admin.html)
-- [Rstudio](https://rstudio.com/products/rstudio/download/)
-- [Bioconductor](https://www.bioconductor.org/install/)
-- [pHeatmap](https://cran.r-project.org/web/packages/pheatmap/pheatmap.pdf)
-- [Seurat](https://cran.r-project.org/web/packages/Seurat/index.html)
-- [SeuratData](https://github.com/satijalab/seurat-data)
+Checkout the pre-requisites in the course website.
 
 
 # Revision of key concepts
 
 ## Linear transformations
 
-Simply put, we can think of a transformation as a function: something that takes an input vector and "spits" an output vector. In addition, they are considered linear if they fulfill these requirements:
+Simply put, we can think of a transformation as a function or program: something that takes an input vector and "spits" an output vector. Such a transformation is deemed "linear" if it fulfills two additional requirements:
 
-1. The transformation of a sum of vectors equals the sum of the transformations:
-
-$$
-L(x + y) = L(x) + L(y)
-$$
-
-2. The transformation of a vector times a scalar equals the scalar times the transformed vector:
+1. Doing the transformation of a sum of vectors gives the same result as doing the sum of the respective transformations:
 
 $$
-L(\lambda x) = \lambda L(x)
+L(u + v) = L(u) + L(v)
 $$
+2. Scaling a vector by a scalar $\lambda$ then doing the transformation gives the same result as doing the transformation of the vector first then scaling the result by $\lambda$:
+
+$$
+L(\lambda u) = \lambda L(u)
+$$
+
 
 ```{r echo=FALSE}
-x <- matrix(c("x1", "x2"), nrow = 2)
+x <- matrix(c("u1", "u2"), nrow = 2)
 i_hat <- matrix(c(1, 0), nrow = 2)
 j_hat <- matrix(c(0, 1), nrow = 2)
 write_matex2 <- function(x) {
@@ -96,19 +67,19 @@ write_matex2 <- function(x) {
 To illustrate this, consider the following vector $x = `r write_matex2(x)`$, which can be expressed as a linear combination of the canonical basis vectors:
 
 $$
-x = x_1 `r write_matex2(i_hat)` + x_2 `r write_matex2(j_hat)`
+u = u_1 `r write_matex2(i_hat)` + u_2 `r write_matex2(j_hat)`
 $$
 
 Let us take the linear transformation L of the vector x and apply the two properties of linear transformations:
 
 $$
-L(x) = L \left( x_1 `r write_matex2(i_hat)` + x_2 `r write_matex2(j_hat)`\right) = L \left(x_1 `r write_matex2(i_hat)`\right) + L \left(x_2 `r write_matex2(j_hat)`\right) = x_1 L\left(`r write_matex2(i_hat)`\right) + x_2 L\left(`r write_matex2(j_hat)`\right)
+L(u) = L \left( u_1 `r write_matex2(i_hat)` + u_2 `r write_matex2(j_hat)`\right) = L \left(u_1 `r write_matex2(i_hat)`\right) + L \left(u_2 `r write_matex2(j_hat)`\right) = u_1 L\left(`r write_matex2(i_hat)`\right) + u_2 L\left(`r write_matex2(j_hat)`\right)
 $$
 
 From the last result, we can deduce two key facts:
 
 1. Linear transformations are completely determined by where the basis vectors "land".
-2. Linear transformation can be expresed as a matrix-vector product (Ax = b).
+2. Linear transformation can be expressed as a matrix-vector product (Ax = b).
 
 The (2) fact can be expressed as follows:
 
@@ -123,32 +94,30 @@ Where a<sub>1</sub> and a<sub>2</sub> are the column vectors of A (transformed b
 
 ## Important definitions
 
-* **Column space**: the colum space of a matrix A (C(A)) is the vector space spanned by the column vectors of A.
-* **Rank**: number of linearly independent columns. In other words, the dimension of C(A).
-* **Determinant**: factor by which a unit of length, area or volume is multiplied in a linear transformation.
-* **Inverse matrix**: matrix that reverses a linear map. That is, if Ax = b, A^-1^b = x.
-* **Null space**: all the vectors x that satisfy Ax = 0. That is, the set of vectors that are mapped to 0 in a linear transformation.
+Given a matrix A, we can attach different concepts to it:
 
-Again, the main objective is **to develop the geometric intuition of linear transformations to understand how these concepts are interconnected**:
+* **Column space**: vector space spanned by the column vectors of A, denoted C(A).
+* **Rank**: number of linearly independent columns of A, which coincides with the dimension of C(A).
+* **Determinant**: factor by which a unit of length (n=1), area (n=2) or volume (n=3) is multiplied after transforming the space with the linear transformation encoded by A.
+* **Inverse matrix**: matrix that undoes that what A accomplishes via matrix multiplication; i.e., if Ax = b, A^-1^b = x.
+* **Null space**: vector space comprising all the vectors x such that Ax = 0; i.e., the set of vectors that are mapped to 0 by the linear transformation encoded by A.
+
+Again, the main objective is **to develop the geometric intuition of linear transformations to see how all these concepts are connected**:
 ![](img/linear_transformations_shed_light.png)
 
 There are two of these relations that are useful to understand algebraically:
 
 1. Relation between rank and dim(N(A)):
 
-$$
-a_1, ... , a_n \hspace{0.2cm} are \hspace{0.2cm} linearly \hspace{0.3cm} independent \Longleftrightarrow N(A) = {0} 
-$$
+A matrix A is full rank (= all column vectors are linearly independent) if and only if the null space is the zero vector space. You can find the proof of this theorem in the [Khan Academy](https://en.khanacademy.org/) videos in the prerequisites sections.
 
-In words: a matrix A is full rank (= all column vectors are linearly independent) if and only if the null space only contains the 0 vector. You can find the proof of this theorem in the [Khan Academy](https://en.khanacademy.org/) videos in the prerequisites sections.
-
-2. Relation between dim(N(A)) and invertibility: 
-
+In a more condensed notation:
 $$
-\forall A_{nxn} \hspace{0.2cm} {\displaystyle \exists !} \hspace{0.2cm}A^{-1} \Longleftrightarrow N(A) = {0} 
+a_1, \ldots, a_n \hspace{0.2cm} \textrm{are linearly independent} \Longleftrightarrow N(A) = \{0\} 
 $$
+2. Relation between dim(N(A)) and invertibility:
 
-In words: for every square matrix A, there exists one and only one matrix A^-1^ if and only if the null space only contains the 0 vector. You can find the proof of this theorem in the [third lecture](https://www.youtube.com/watch?v=FX4C-JpTFgY) of the MIT course in linear algebra, by Gilbert Strang (timestamps: 27:56-31:50).
+If A is a square matrix, A is invertible if and only if the null space is the zero vector space. You can find the proof of this theorem in the [third lecture](https://www.youtube.com/watch?v=FX4C-JpTFgY) of the MIT course in linear algebra, by Gilbert Strang (timestamps: 27:56-31:50).
 
 
 # Shiny app walkthrough
@@ -160,11 +129,11 @@ Herein, we will walk you through our shiny app that will allow us to fully under
 As you can see, there are 4 tabs:
 
 1. Visualization, which has two components. First, it contains an input box where the user should specify the number of dimensions and the matrix A that defines the linear transformation. Second, the plot pane shows the input and the output of the transformation.
-2. Gauss-Jordan: it contains a calculator that performs Gauss-Jordan to find the inverse (if it exists). The operations are performed column-wise. With this tab you can prove the fundamental theorem of linear algebra, but for now it is beyond the scope of this session.
-3. Null Space: it calculates and represents the null space of the input matrix.
-4. Determinant: it calculates the determinant of the input matrix.
+2. Gauss-Jordan. It contains a calculator that performs Gauss-Jordan column-wise. The algorithm can be run either stepwise, with the option to fast-forward to the final result. As expected, it gives us two outputs: column echelon form (top) and transformation matrix (bottom). With this tab you can get an intuition of the Fundamental Theorem of Linear Algebra.
+3. Null Space. It calculates and represents the null space of the input matrix.
+4. Determinant. It calculates the determinant of the input matrix.
 
-To illustrate how all these concepts are interconnected, we start by fixing the rank (number of linearly independent columns) and see how that affects the rest of properties. we will use the following example matrices:
+To illustrate how all these concepts are connected, we start by fixing the rank (number of linearly independent columns) and see how that affects the rest of properties. We will use the following example matrices:
 
 
 ```{r echo=FALSE}
@@ -195,13 +164,21 @@ After this, you should realize two important connections:
 
 ## Basic transformations
 
-**Exercise:** Now that you have an idea of how the app works, **try to find the matrix that describes the following linear transformations:**
+**Exercise: find the matrix that describes the following transformations of 2d space:**
 
-1. expands space by a factor of 2 in all axis.
-2. shrinks space to half its initial value
-3. reflects every vector across the x = y line
-4. rotates every vector by 30º (hint: use unit circle)
-5. Smear
+1. expands all lengths by a factor of 2 in all axes;
+2. shrinks all lengths by a factor of 1/3;
+3. rotates all vectors by $\pi/6$ radians (30 degrees) about the origin (hint: use unit circle).
+4. reflects all vectors about the y-axis.
+5. projects all vectors onto the x-axis.
+
+**Exercise: find the matrix that describes the following transformations of 3d space:**
+
+1. expands all lengths by a factor of 2 in all axes;
+2. shrinks all lengths by a factor of 1/2;
+3. reflects all vectors with respect to the {x,y} plane;
+4. projects all vectors onto the {x,z} plane;
+5. rotates all vectors by $\pi/3$ radians (60 degrees) around the z-axis (hint: use unit circle)
 
 For each transformation, you should answer these questions:
 
@@ -210,39 +187,39 @@ For each transformation, you should answer these questions:
 - Which is the dimension of the null space?
 - Which is the determinant of A?
 
-
-We will leave 5 min for each of them, and then we will ask one of you to tell us which matrix you guessed.
-
-**TODO: DEFINE A BETTER LIST OF SIMPLE LINEAR MAPS**
-
+We will leave an average of 2-3 min for each exercise, depending on the difficulty, then we will ask you 
+to tell us which matrices you guessed.
 
 ## Composition of basic transformations
 
-Importantly, you can think of matrix multiplication as a composition of single transformation. Let us take the following transformation:
+Importantly, you can think of matrix multiplication as composition of transformations. In other words, whenever you are considering a product of matrices C=AB as a single transformation:
 
 $$
-Cx = ABx = b
+Cx = (AB)x = y
 $$
 
-The transformation C can be interpreted as first applying the transformation B to x, and then apply A to the resulting vector:
+the transformation C is encoding the concatenation of the transformation A after B, in the sense that first x is the input of B, and then the output is the input of A:
 
-**TODO: insert image**
+$$
+x \stackrel{B}{\longmapsto} (Bx) \stackrel{A}{\longmapsto} A(Bx) = (AB)x = Cx
+$$
+So every time we add a new "linear transformation" step to our output, we are piling up matrices by multiplication on the left.
 
 You can find a more thorough explanation in [this 3blue1brown video](https://www.youtube.com/watch?v=XkY2DOUCWMU).
 
-Try to find the matrix that describes the following transformations:
+In the previous exercise, try to find the matrix that describes the following transformations:
 
 1. Apply matrix (1) and then (3).
-2. Apply matrix (2) and then (4).
+2. Apply matrix (3) and then (4).
 
 
-**Challenge**: is matrix multiplication commutative? (hint: do you get the same result if you apply (1) then (3), or vice versa?)
+**Challenge**: is matrix multiplication commutative? (hint: do you get the same result if you apply (3) then (4), or the other way round?)
 
 
 
 # Matrix algebra with R
 
-This section aims to teach the fundamentals of R to be able to perform linear algebra operations and visualize them. We will start by teaching the basic data structures, categorized by dimensionality (1D: atomic vectors + lists; 2D: matrices + data.frames) and whether they can contain only one value type (homogenous: atomic vectors and matrices) or more than one (heterogeneous: lists and data.frames). Moreover, here I showcase an example of the main functions we should cover in the hands-on session:
+This section aims to teach the fundamentals of R to be able to perform linear algebra operations and visualize them. We will start by teaching the basic data structures, categorized by dimensionality (1D: atomic vectors + lists; 2D: matrices + data.frames) and whether they can contain only one value type (homogeneous: atomic vectors and matrices) or more than one (heterogeneous: lists and data.frames). Moreover, here I showcase an example of the main functions we should cover in the hands-on session:
 
 
 
