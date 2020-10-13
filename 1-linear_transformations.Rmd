@@ -64,13 +64,13 @@ write_matex2 <- function(x) {
 }
 ```
 
-To illustrate this, consider the following vector $x = `r write_matex2(x)`$, which can be expressed as a linear combination of the canonical basis vectors:
+To illustrate this, consider the following vector $u = `r write_matex2(x)`$, which can be expressed as a linear combination of the canonical basis vectors:
 
 $$
 u = u_1 `r write_matex2(i_hat)` + u_2 `r write_matex2(j_hat)`
 $$
 
-Let us take the linear transformation L of the vector x and apply the two properties of linear transformations:
+Let us take the linear transformation L of the vector u and apply the two properties of linear transformations:
 
 $$
 L(u) = L \left( u_1 `r write_matex2(i_hat)` + u_2 `r write_matex2(j_hat)`\right) = L \left(u_1 `r write_matex2(i_hat)`\right) + L \left(u_2 `r write_matex2(j_hat)`\right) = u_1 L\left(`r write_matex2(i_hat)`\right) + u_2 L\left(`r write_matex2(j_hat)`\right)

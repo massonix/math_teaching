@@ -7,7 +7,7 @@ library(matlib)
 library(reshape2)
 
 # Source utils
-setwd("~/Google Drive/single_cell/PhD/trainings/math_teaching/math_teaching/")
+# setwd("~/Google Drive/single_cell/PhD/trainings/math_teaching/math_teaching/")
 source("utils_projections_onto_subspaces.R")
 
 # Create user interface
