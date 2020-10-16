@@ -17,43 +17,22 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Introduction and objectives
 
-In this hands-on session, we will review the concept of projections onto subspaces. Specifically, we aim to achieve the following objectives:
+In this hands-on session, we will review the concept of projections onto vector subspaces. Specifically, we aim to achieve the following objectives:
 
-1. Use orthogonal projections to solve the system of linear equations Ax = b when b is not in the column space of A.
+1. Use orthogonal projections to solve general systems of linear equations of the form Ax = b when b is not necessarily in the column space of A.
 2. Understand this problem both algebraically and geometrically. For the latter we will use the power of [Shiny apps](https://shiny.rstudio.com/).
-3. Find the least squares regression line for n points in R^2^ using the concepts explained in this session. Least squares represents a real-world application of linear algebra.
+3. Find the least squares regression solution line for n points in R^2^ using the concepts explained in this session. Least squares is a real-world, pervasive application of linear algebra.
 4. Learn to use [ggplot2](https://ggplot2.tidyverse.org/) to obtain publication-quality graphics. 
 
 
-# Pre-requisites
+# Disclaimer
 
-## Material
-
-- Watch the MIT lectures explaining [projections onto subspaces](https://www.youtube.com/watch?v=Y_Ac6KiQ1t0) and [least squares](https://www.youtube.com/watch?v=osh80YCg_GM).
-- Watch the following Khan Academy videos:
-  - [Least squares approximation](https://en.khanacademy.org/math/linear-algebra/alternate-bases/orthogonal-projections/v/linear-algebra-least-squares-approximation)
-  - [Another least squares example](https://www.khanacademy.org/math/linear-algebra/alternate-bases/orthogonal-projections/v/linear-algebra-another-least-squares-example)
-- Read points 2.3 and 3 of the iconic ["Tidy Data"](https://vita.had.co.nz/papers/tidy-data.pdf) paper by Hadley Wickham.
-- Read this article summarising the main points of ["The Grammar of Graphics"](https://towardsdatascience.com/a-comprehensive-guide-to-the-grammar-of-graphics-for-effective-visualization-of-multi-dimensional-1f92b4ed4149).
-
-The majority of the reasoning and examples used in this tutorial come from the 4th Chapter of the book ["Introduction to Linear Algebra"](https://math.mit.edu/~gs/linearalgebra/), by Gilbert Strang.
-
-## Install software
-
-- [tidyverse](https://www.tidyverse.org/)
-- [gapminder](https://cran.r-project.org/web/packages/gapminder/index.html)
-- [matlib](https://cran.r-project.org/web/packages/matlib/index.html)
-- [MASS](https://cran.r-project.org/web/packages/MASS/MASS.pdf)
-
-
-## Disclaimer
-
-This hands-on session is loaded with new and challenging concepts. We firmly believe that all of you are able to fully grasp them with time and dedication, but it would be entirely expected if you don't finish this document or don't understand everything in the class. You will have this document for you to study after the class, and we will be available to answer any questions.
+This hands-on session comprises some challenging concepts. We believe that all the students at your level are able to grasp them with time and dedication, but it would also be within the expected if you don't finish this document or don't understand everything in the classroom. You will have this document for you to study after the class, and we will be available to answer any questions.
 
 
 # Description of the problem
 
-We want to find the solution of a system of linear equations Ax = b that has no solution. We can approach this problem from two different perspectives, which Gilbert Strang coins the "row and column pictures" of a system of equations.
+We want to find a suitable solution for a system of linear equations Ax = b that has no proper, exact solution in the traditional sense. We can approach this problem from two different perspectives, which master Gilbert Strang refer to as the "row and column pictures" of a system of equations.
 
 
 ## Row picture
@@ -97,7 +76,7 @@ $$
 `r write_matex2(A)` `r write_matex2(x)` = `r write_matex2(b)`
 $$
 
-Where A is the **coefficient matrix**, x is the vector that cointains the **unknowns** and b is the vector that contains the **constants**. Geometrically, the row picture tells us that a system of linear equations has no solution if all the lines specified by the equations do not meet in a single point:
+Where A is the **coefficient matrix**, x is the vector that contains the **unknowns** and b is the vector that contains the **constants**. Geometrically, the row picture tells us that a system of linear equations has no solution if all the lines specified by the equations do not meet in a single point:
 
 ```{r echo=FALSE}
 library(ggplot2)
@@ -117,16 +96,17 @@ ggplot(df) +
   theme(axis.title = element_text(size = 13, face = "bold"))
 ```
 
-This is usually the case in **systems of linear equations with more equations than unknowns**. Colloquially, these are known as "tall and skinny matrices" (more rows than columns).
+This is typically the case in **systems of linear equations with more equations than unknowns**. We can think of these as systems with "tall and skinny matrices" (more rows than columns). 
+
+The term "row picture" is reminiscent of the fact that each row of the system represents an equation, and every linear equation in the plane has typically not just one but many --a straight line of-- solutions.
 
 
 ## Column picture
 
 Understanding Ax = b using the column picture is the ultimate goal of linear algebra. We do not think of equations and unknowns anymore. Instead, we interpret the elements of this problem as follows: 
 
-* The matrix A specifies two column vectors (a<sub>1</sub> and a<sub>2</sub>). All the possible linear combinations of a<sub>1</sub> and a<sub>2</sub> (their span) are known as the column space of A, or C(A).
-* The elements of x (x<sub>1</sub> and x<sub>2</sub> hereafter) specify which linear combination of a1 and a2 to take. 
-* b specifies the result of a specific choice of x.
+* The matrix A specifies two column vectors (a<sub>1</sub> and a<sub>2</sub>). All the possible linear combinations of a<sub>1</sub> and a<sub>2</sub> (their span) are collectively known as the column space of A, or C(A).
+* The elements of x (x<sub>1</sub> and x<sub>2</sub> hereafter) specify which linear combination of a1 and a2 to take. * b specifies the result of a specific choice of x.
 
 The algebraic interpretation of the column picture of the previous example is the following:
 
@@ -148,26 +128,29 @@ $$
 $$
 x1 `r write_matex2(a1)` + x2 `r write_matex2(a2)` = `r write_matex2(b)`
 $$
-Thus, Ax = b has no solution when b is not contained in C(A). In other words, there is no two x<sub>1</sub> and x<sub>2</sub> that specify a linear combination of a<sub>1</sub> and a<sub>2</sub> that produces b. 
+Thus, Ax = b has no proper solution in the traditional sense whenever b is not contained in C(A). In other words, there is no two x<sub>1</sub> and x<sub>2</sub> that specify a linear combination of a<sub>1</sub> and a<sub>2</sub> that produces b. 
 
 **Exercise**
-To geometrically visualize this, enter to the shiny app associated with this tutorial by clicking the following link or copying it into your favourite browser:
+To geometrically visualize this, enter to the shiny app associated with this tutorial by clicking the following link or copying it into your browser:
 
 [https://massonix.shinyapps.io/projections_onto_subspaces/](https://massonix.shinyapps.io/projections_onto_subspaces/)
 
-Then, in the left side of the app enter the matrix A and the vector b. You should visualize C(A) as a plane in R^3^, and b as a vector in R^3^ that is not contained in the plane.
+Then, in the left hand side of the app enter the matrix A and the vector b. The app will render a visualization of C(A) as a plane in R^3^, and b as a vector in R^3^, which need not be contained in the plane.
 
 
 # Solving the problem
 
-As we have seen above, There is no vector x that will solve the system Ax = b. However, we can approximate the solution by finding the vector p = $\widehat{x}$<sub>1</sub> a<sub>1</sub> + ··· + $\widehat{x}$<sub>n</sub> a<sub>n</sub> that is **as close as possible to the vector b**. Thus, **p** is the orthogonal projection of **b** onto C(A). You can clearly visualize this in the first tab of the shiny app. 
+As we have seen above, there is in general no vector x that will provide a proper solution of Ax = b in the traditional sense. However, we can provide "the best solution we can" by finding the vector p = $\widehat{x}$<sub>1</sub> a<sub>1</sub> + ··· + $\widehat{x}$<sub>n</sub> a<sub>n</sub> that is **as close as possible to the vector b**. To make the "as close as possible" more precise, we will consider the closest vector to b that cuts the column space C(A) by moving perpendicularly with respect to C(A), i.e., **p** will be the orthogonal projection of **b** onto C(A). You can clearly visualize this in the shiny app. 
 
 As p is in C(A), we can find a vector $\widehat{x}$ that solves the new system: A$\widehat{x}$ = p.
 
-To solve this problem, we will follow three steps, which are highlighted in the section "Projection Onto a Subspace" in Chapter 4 of "Introduction to Linear Algebra", by Gilbert Strang. The steps are the following:
+We will analyze this problem in three steps, which are highlighted in the section "Projection Onto a Subspace" in Chapter 4 of "Introduction to Linear Algebra", by Gilbert Strang. The steps are the following:
 
-1. Find the vector $\widehat{x}$ 
-2. Find the projection p = A\widehat{x}
+1. Find the vector $\widehat{x}$. 
+
+Once we have accomplished this part, the problem will be solved in practice. However, we also want to inquiry what is the orthogonal projection that has been applied under the hood. Hence we will pursue the next two steps:
+
+2. Find the projected vector p = A\widehat{x}
 3. Find the projection matrix P
 
 We will develop each of the steps and apply them to solve the example above.
@@ -179,11 +162,13 @@ The key to find $\widehat{x}$ is in the geometry of the error vector e, defined 
 $$
 e = b - p = b - A\widehat{x}
 $$
-As you can see in the app, e is orthogonal to C(A). Thus, **the scalar product of each column vector of A (a<sub>1</sub>,···, a<sub>n</sub>) and e is 0**. We can express this in a single matrix-vector product by transposing A, so that the column vectors become the rows of A^T^:
+As you can see in the app, e is orthogonal to C(A). Thus, **the scalar product of each column vector of A (a<sub>1</sub>,···, a<sub>n</sub>) and e is 0**. We can express this as a single matrix-vector product by transposing A, so that the column vectors become the rows of A^T^:
 
 $$
 A^T e = 0
 $$
+Replacing e by its definition:
+
 $$
 A^T (b - A\widehat{x}) = 0
 $$
@@ -200,20 +185,20 @@ $$
 A^Tb = A^T A\widehat{x}
 $$
 
-This symmetric matrix A^T^A is invertible if the column vectors are independent. If that's the case, we can multiply both sides by (A^T^A)^-1^ and isolate $\widehat{x}$:
+We know that the symmetric matrix A^T^A is invertible if the column vectors are independent. If that's the case, we can multiply both sides by (A^T^A)^-1^ and isolate $\widehat{x}$:
 
 $$
 (A^T A)^{-1} A^Tb = (A^T A)^{-1} A^T A\widehat{x}
 $$
 $$
-(A^T A)^{-1} A^Tb = I \widehat{x}
+(A^T A)^{-1} A^Tb = \textrm{Id}\; \widehat{x} = \widehat{x}
 $$
 
 $$
 \widehat{x} = (A^T A)^{-1} A^Tb
 $$
 
-Let us apply this formula to the example above. To ease the calculations, we will use the operations in R that we learnt in the previous hands-on session. First, we compute A^T^A:
+Let us apply this formula to the example above. To make computations easier, we will use the operations in R that we learned in the previous hands-on session. First, we compute A^T^A:
 
 ```{r}
 A <- matrix(c(1, 1, 1, 0, 1, 2), nrow = 3, ncol = 2, byrow = FALSE)
@@ -279,7 +264,9 @@ $$
 
 ## Find the projection matrix P (optional)
 
-We can generalize this finding to find the projection matrix P, which will describes a linear transformation that takes a vector b and projects in onto C(A). If we look at the equations above, it becomes obvious that we can find $P = A (A^T A)^{-1} A^T$. Projection matrices have two interesting properties:
+Now we can pursue one more step to find the matrix P encoding the orthogonal projection onto the column space C(A), which describes a linear transformation that takes any vector and projects in onto C(A). If we look at what happened with b, it is easy to spot the matrix that did the job: $P = A (A^T A)^{-1} A^T$. 
+
+Projection matrices have two interesting properties:
 
 1. It's symmetric
 
@@ -388,7 +375,7 @@ $$
 
 In our real problem, we have `r nrow(gapminder_2002)` equations for only two unknowns (slope and y-intercept). Thus, the coefficient matrix is `r nrow(gapminder_2002)`x2. As you will have guessed, to find the least squares regression line we will need to use orthogonal projections to find m and n.
 
-**Challenge**: To get a sense of how b, p and e translate in the context of a least squares problem, go to the *Least Squares* tab in the shiny app.
+**Challenge**: To get a sense of how b, p and e translate in the context of a least squares problem try the shiny app.
 
 
 To solve for m an n, we will first create the matrix A and the vector b. Note that the first column of A is the gdpPercap, and the vector b is  the lifeExp:
