@@ -416,7 +416,7 @@ apply_gauss_jordan_2d <- function(A, I) {
     mults <- find_multiples(x = A[, 2], A[, 1], entry = 2)
     A[, 1] <- combine_columns(x = A[, 2], y = A[, 1], x_m = mults["x"], y_m = mults["y"])
     I[, 1] <- combine_columns(x = I[, 2], y = I[, 1], x_m = mults["x"], y_m = mults["y"])
-    assignment_message <- str_c("C", " \U2190 ", fractions(mults["y"]), "C1",
+    assignment_message <- str_c("C1", " \U2190 ", fractions(mults["y"]), "C1",
                                 " + ", fractions(mults["x"]), "C2", " \n", sep = "")
     output <- list(A = A, I = I, assignment_message = assignment_message)
     return(output)
@@ -444,7 +444,7 @@ apply_gauss_jordan_3d <- function(A, I) {
             mat[, j] <- combine_columns(x = mat[, i], y = mat[, j], x_m = mults["x"], y_m = mults["y"])
             mat
           })
-          assignment_message <- str_c("C", i, " \U2190 ", fractions(mults["x"]), "C", i,
+          assignment_message <- str_c("C", j, " \U2190 ", fractions(mults["x"]), "C", i,
                                       " + ", fractions(mults["y"]), "C", j, " \n", sep = "")
           output <- c(output, assignment_message)
           return(output)
