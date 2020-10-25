@@ -1889,7 +1889,7 @@ E3 = \begin{bmatrix}1&amp;2&amp;3 \\2&amp;4&amp;6 \\3&amp;6&amp;9 \\\end{bmatrix
 <ol style="list-style-type: decimal">
 <li>expands all lengths by a factor of 2 in all axes;</li>
 <li>shrinks all lengths by a factor of 1/3;</li>
-<li>rotates all vectors by <span class="math inline">\(\pi/6\)</span> radians (30 degrees) about the origin (hint: use unit circle).</li>
+<li>rotates all vectors by <span class="math inline">\(\pi/6\)</span> radians (30 degrees) about the origin (hint: use <a href="https://en.wikipedia.org/wiki/Unit_circle">unit circle</a> and this <a href="https://www.rapidtables.com/calc/math/trigonometry-calculator.html">trigonometry calculator</a>).</li>
 <li>reflects all vectors about the y-axis.</li>
 <li>projects all vectors onto the x-axis.</li>
 </ol>
@@ -1933,14 +1933,83 @@ So every time we add a new “linear transformation” step to our output, we ar
 </div>
 <div id="matrix-algebra-with-r" class="section level1">
 <h1><span class="header-section-number">6</span> Matrix algebra with R</h1>
-<p>This section aims to teach the fundamentals of R so that you will be able to perform linear algebra operations and visualize them. We will start by teaching the basic data structures, categorized by dimensionality (1D: atomic vectors + lists; 2D: matrices + data.frames) and whether they can contain only one value type (homogeneous: atomic vectors and matrices) or more than one (heterogeneous: lists and data.frames). Moreover, here I showcase an example of the main functions we should cover in the hands-on session:</p>
-<pre class="r"><code># Load packages
-library(Seurat)
-library(SeuratData)
-library(pheatmap)
-
-
-# Create
+<div id="introduction-to-r" class="section level2">
+<h2><span class="header-section-number">6.1</span> Introduction to R</h2>
+<p>R is an open-source and <strong>vectorized</strong> programming language. In R we never deal with scalars: single values are vectors of length 1:</p>
+<pre class="r"><code>x &lt;- 5
+length(x)</code></pre>
+<pre><code>## [1] 1</code></pre>
+<p>It is also a <strong>functional</strong> programming language, which means that operations are centered around functions, and that it provides many tools for the creation and manipulation of functions (see <a href="http://adv-r.had.co.nz/">this book</a> for more). Most importantly, functions take inputs, and this inputs can be of many different classes:</p>
+<pre class="r"><code>class(x)</code></pre>
+<pre><code>## [1] &quot;numeric&quot;</code></pre>
+<div id="basic-data-types" class="section level3">
+<h3><span class="header-section-number">6.1.1</span> Basic data types</h3>
+<p>We have 3 basic data types: numerics, characters and logicals:</p>
+<p>Numerics are needed to perform arithmetic operations:</p>
+<pre class="r"><code>y &lt;- 9
+z &lt;- x + y
+class(z)</code></pre>
+<pre><code>## [1] &quot;numeric&quot;</code></pre>
+<p>Characters are what in other languages are known as strings:</p>
+<pre class="r"><code>quote &lt;- &quot;Gilbert Strang rocks!&quot;
+print(quote)</code></pre>
+<pre><code>## [1] &quot;Gilbert Strang rocks!&quot;</code></pre>
+<p>Finally, logicals (known as booleans in other programming languages) are important in conditions:</p>
+<pre class="r"><code>(5 + 5) == 10</code></pre>
+<pre><code>## [1] TRUE</code></pre>
+<pre class="r"><code>(6 - 7) &gt; 0</code></pre>
+<pre><code>## [1] FALSE</code></pre>
+<p>We can convert between data types with the <code>as.*()</code> functions:</p>
+<pre class="r"><code>logical &lt;- TRUE
+as.character(logical)</code></pre>
+<pre><code>## [1] &quot;TRUE&quot;</code></pre>
+<pre class="r"><code>as.numeric(logical)</code></pre>
+<pre><code>## [1] 1</code></pre>
+</div>
+<div id="compound-data-types" class="section level3">
+<h3><span class="header-section-number">6.1.2</span> Compound data types</h3>
+<p>When we have more than one element, we can think of compound data types. They can be classified using two criteria:</p>
+<ul>
+<li>Dimension: 1D or 2D</li>
+<li>Homogeneous or heterogeneous, defined by whether they store a single or multiple basic data types, respectively.</li>
+</ul>
+<p>Combining both criteria, we get the following classification of R’s data structures (see <a href="http://adv-r.had.co.nz/Data-structures.html">this chapter</a> for more):</p>
+<pre><code>| Homogeneous | Heterogeneous</code></pre>
+<p>—-|————-|————–
+1d |Atomic vector| List
+2d |Matrix | Data frame</p>
+<p>They are created with specific functions:</p>
+<pre class="r"><code>my_vector &lt;- c(1, 2, 3)
+my_list &lt;- list(1, &quot;Ferran&quot;, TRUE)
+my_matrix &lt;- matrix(c(1, 2, 3, 4), nrow = 2, ncol = 2, byrow = FALSE)
+my_data_frame &lt;- data.frame(name = c(&quot;Ferran&quot;, &quot;Ramon&quot;), is_postdoc = c(TRUE, FALSE))
+my_vector</code></pre>
+<pre><code>## [1] 1 2 3</code></pre>
+<pre class="r"><code>my_list</code></pre>
+<pre><code>## [[1]]
+## [1] 1
+## 
+## [[2]]
+## [1] &quot;Ferran&quot;
+## 
+## [[3]]
+## [1] TRUE</code></pre>
+<pre class="r"><code>my_matrix</code></pre>
+<pre><code>##      [,1] [,2]
+## [1,]    1    3
+## [2,]    2    4</code></pre>
+<pre class="r"><code>my_data_frame</code></pre>
+<pre><code>##     name is_postdoc
+## 1 Ferran       TRUE
+## 2  Ramon      FALSE</code></pre>
+<p>As you can imagine, these data structures are used for different purposes and taken by distinct functions. Here, we will focus on matrices.
+This section aims to teach the fundamentals of R so that you will be able to perform linear algebra operations and visualize them. We will start by teaching the basic data structures, categorized by dimensionality (1D: atomic vectors + lists; 2D: matrices + data.frames) and whether they can contain only one value type (homogeneous: atomic vectors and matrices) or more than one (heterogeneous: lists and data.frames). Moreover, here I showcase an example of the main functions we should cover in the hands-on session:</p>
+</div>
+</div>
+<div id="create-subset-and-combine-matrices-in-r" class="section level2">
+<h2><span class="header-section-number">6.2</span> Create, subset and combine matrices in R</h2>
+<p>We will show these operations for both atomic vectors and matrices. Let us start by creating two examples:</p>
+<pre class="r"><code># Create
 x &lt;- c(1, 2, 3)
 A &lt;- matrix(c(1, 2, 3, 4, 5, 6, 7, 8, 9), nrow = 3, ncol = 3, byrow = FALSE)
 x </code></pre>
@@ -1950,8 +2019,8 @@ x </code></pre>
 ## [1,]    1    4    7
 ## [2,]    2    5    8
 ## [3,]    3    6    9</code></pre>
-<pre class="r"><code># Get dimensions
-length(x)</code></pre>
+<p>Get the dimensions:</p>
+<pre class="r"><code>length(x)</code></pre>
 <pre><code>## [1] 3</code></pre>
 <pre class="r"><code>dim(A)</code></pre>
 <pre><code>## [1] 3 3</code></pre>
@@ -1959,8 +2028,8 @@ length(x)</code></pre>
 <pre><code>## [1] 3</code></pre>
 <pre class="r"><code>ncol(A)</code></pre>
 <pre><code>## [1] 3</code></pre>
-<pre class="r"><code># Name
-names(x) &lt;- c(&quot;1&quot;, &quot;2&quot;, &quot;3&quot;)
+<p>To ease subsetting we can name rows and columns as follows:</p>
+<pre class="r"><code>names(x) &lt;- c(&quot;1&quot;, &quot;2&quot;, &quot;3&quot;)
 rownames(A) &lt;- c(&quot;a&quot;, &quot;b&quot;, &quot;c&quot;)
 colnames(A) &lt;- c(&quot;x&quot;, &quot;y&quot;, &quot;z&quot;)
 x</code></pre>
@@ -1971,6 +2040,7 @@ x</code></pre>
 ## a 1 4 7
 ## b 2 5 8
 ## c 3 6 9</code></pre>
+<p>There are 3 ways of subsetting a vector: by index, by character or by logicals:</p>
 <pre class="r"><code># Subset
 ## Numeric
 x[1]</code></pre>
@@ -1988,20 +2058,22 @@ x[1]</code></pre>
 ## b 2 8
 ## c 3 9</code></pre>
 <pre class="r"><code>## Character
-x[&quot;b&quot;]</code></pre>
-<pre><code>## &lt;NA&gt; 
-##   NA</code></pre>
+x[&quot;2&quot;]</code></pre>
+<pre><code>## 2 
+## 2</code></pre>
 <pre class="r"><code>A[c(&quot;a&quot;, &quot;b&quot;), ]</code></pre>
 <pre><code>##   x y z
 ## a 1 4 7
 ## b 2 5 8</code></pre>
-<pre class="r"><code>## Logical
-# x[c(FALSE, TRUE, TRUE)]
-# x &gt; 1
-# x[x &gt; 1]</code></pre>
 <p><strong>Challenge</strong>: Create a vector from 1 to 100 (included), and then filter it to keep only the multiples of three. You’re not allowed to use the <code>seq()</code> function.</p>
+<p>We can concatenate vectors and matrices as follows:</p>
 <pre class="r"><code># Concatenate
-rbind(A, x)</code></pre>
+y &lt;- c(5, 6)
+z &lt;- c(x, y)
+z</code></pre>
+<pre><code>## 1 2 3     
+## 1 2 3 5 6</code></pre>
+<pre class="r"><code>rbind(A, x)</code></pre>
 <pre><code>##   x y z
 ## a 1 4 7
 ## b 2 5 8
@@ -2012,6 +2084,9 @@ rbind(A, x)</code></pre>
 ## a 1 4 7 1
 ## b 2 5 8 2
 ## c 3 6 9 3</code></pre>
+</div>
+<div id="basic-operations-with-matrices" class="section level2">
+<h2><span class="header-section-number">6.3</span> Basic operations with matrices</h2>
 <pre class="r"><code># Transpose
 t(A)</code></pre>
 <pre><code>##   a b c
@@ -2055,12 +2130,14 @@ A + A</code></pre>
 ## a 30 66 102
 ## b 36 81 126
 ## c 42 96 150</code></pre>
+</div>
 <div id="heatmap" class="section level2">
-<h2><span class="header-section-number">6.1</span> Heatmap</h2>
+<h2><span class="header-section-number">6.4</span> Heatmap</h2>
 <p>A crucial skill in bioinformatics is to be able to visualize matrices. In real-world settings, matrices that harbor biological data (i.e. expression matrices) are too large to read them. In this context, heatmap represent a great alternative to pinpoint patterns in the data. You can read more about heatmaps <a href="https://en.wikipedia.org/wiki/Heat_map">here</a>.</p>
 <p>We will show you how to plot heatmaps in R using the <code>pheatmap</code> package. As an example, we will use a single-cell gene expression matrix of 2,638 peripheral blood mononuclear cells (<a href="https://en.wikipedia.org/wiki/Peripheral_blood_mononuclear_cell">PBMC</a>). We download this data using the <a href="https://satijalab.org/seurat/"><code>Seurat</code></a> package, which has become a swiss-army-knife of
 the software to analyze scRNA-seq data. The following chunk of code is executed to get the toy expression matrix, but you are not expected to understand it:</p>
 <pre class="r"><code># Get data
+library(pheatmap)
 library(Seurat)
 library(SeuratData)
 library(dplyr)
@@ -2130,10 +2207,10 @@ pheatmap::pheatmap(
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] dplyr_0.8.5             pheatmap_1.0.12         pbmc3k.SeuratData_3.1.4 SeuratData_0.2.1        Seurat_3.2.0            BiocStyle_2.14.4       
+## [1] dplyr_0.8.5             pbmc3k.SeuratData_3.1.4 SeuratData_0.2.1        Seurat_3.2.0            pheatmap_1.0.12         BiocStyle_2.14.4       
 ## 
 ## loaded via a namespace (and not attached):
-##   [1] nlme_3.1-148          RcppAnnoy_0.0.16      RColorBrewer_1.1-2    httr_1.4.1            sctransform_0.2.1     tools_3.6.0           R6_2.4.1              irlba_2.3.3           rpart_4.1-15          KernSmooth_2.23-17    uwot_0.1.8            mgcv_1.8-31           lazyeval_0.2.2        colorspace_1.4-1      tidyselect_1.1.0      gridExtra_2.3         compiler_3.6.0        cli_2.0.2             plotly_4.9.2.1        bookdown_0.19         scales_1.1.1          spatstat.data_1.4-3   lmtest_0.9-37         ggridges_0.5.2        pbapply_1.4-2         rappdirs_0.3.1        goftest_1.2-2         spatstat_1.64-1       stringr_1.4.0         digest_0.6.20         spatstat.utils_1.17-0 rmarkdown_2.2         pkgconfig_2.0.3       htmltools_0.4.0       fastmap_1.0.1         htmlwidgets_1.5.1     rlang_0.4.6           shiny_1.4.0.2         farver_2.0.3          zoo_1.8-8             jsonlite_1.6.1        ica_1.0-2             magrittr_1.5          patchwork_1.0.0       Matrix_1.2-18         fansi_0.4.1           Rcpp_1.0.2            munsell_0.5.0         viridis_0.5.1         abind_1.4-5           ape_5.3               reticulate_1.16       lifecycle_0.2.0       stringi_1.4.6        
+##   [1] nlme_3.1-148          RcppAnnoy_0.0.16      RColorBrewer_1.1-2    httr_1.4.1            sctransform_0.2.1     tools_3.6.0           R6_2.4.1              irlba_2.3.3           rpart_4.1-15          KernSmooth_2.23-17    uwot_0.1.8            mgcv_1.8-31           lazyeval_0.2.2        colorspace_1.4-1      gridExtra_2.3         tidyselect_1.1.0      compiler_3.6.0        cli_2.0.2             plotly_4.9.2.1        bookdown_0.19         scales_1.1.1          spatstat.data_1.4-3   lmtest_0.9-37         ggridges_0.5.2        pbapply_1.4-2         rappdirs_0.3.1        goftest_1.2-2         spatstat_1.64-1       stringr_1.4.0         digest_0.6.20         spatstat.utils_1.17-0 rmarkdown_2.2         pkgconfig_2.0.3       htmltools_0.4.0       fastmap_1.0.1         htmlwidgets_1.5.1     rlang_0.4.6           shiny_1.4.0.2         farver_2.0.3          zoo_1.8-8             jsonlite_1.6.1        ica_1.0-2             magrittr_1.5          patchwork_1.0.0       Matrix_1.2-18         fansi_0.4.1           Rcpp_1.0.2            munsell_0.5.0         viridis_0.5.1         abind_1.4-5           ape_5.3               reticulate_1.16       lifecycle_0.2.0       stringi_1.4.6        
 ##  [55] yaml_2.2.1            MASS_7.3-51.6         Rtsne_0.15            plyr_1.8.6            grid_3.6.0            parallel_3.6.0        listenv_0.8.0         promises_1.1.0        ggrepel_0.8.2         crayon_1.3.4          deldir_0.1-25         miniUI_0.1.1.1        lattice_0.20-41       cowplot_1.0.0         splines_3.6.0         tensor_1.5            knitr_1.28            pillar_1.4.4          igraph_1.2.5          future.apply_1.5.0    reshape2_1.4.4        codetools_0.2-16      leiden_0.3.3          glue_1.4.1            evaluate_0.14         data.table_1.12.8     BiocManager_1.30.10   vctrs_0.3.0           png_0.1-7             httpuv_1.5.3.1        polyclip_1.10-0       gtable_0.3.0          RANN_2.6.1            purrr_0.3.4           tidyr_1.1.0           future_1.17.0         assertthat_0.2.1      ggplot2_3.3.0         xfun_0.14             rsvd_1.0.3            mime_0.9              xtable_1.8-4          later_1.0.0           survival_3.1-12       viridisLite_0.3.0     tibble_3.0.1          cluster_2.1.0         globals_0.12.5        fitdistrplus_1.1-1    ellipsis_0.3.1        ROCR_1.0-11</code></pre>
 </div>
 
