@@ -280,10 +280,10 @@ When we have more than one element, we can think of compound data types. They ca
 
 Combining both criteria, we get the following classification of R's data structures (see [this chapter](http://adv-r.had.co.nz/Data-structures.html) for more):
 
-    | Homogeneous | Heterogeneous
-----|-------------|--------------
-1d  |Atomic vector| List
-2d  |Matrix       | Data frame
+|    | Homogeneous   | Heterogeneous |
+|----|---------------|---------------|
+| 1D | Atomic vector | List          |
+| 2D | Matrix        | Data frame    |
 
 They are created with specific functions:
 
