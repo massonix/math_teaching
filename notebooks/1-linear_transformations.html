@@ -1974,10 +1974,27 @@ as.character(logical)</code></pre>
 <li>Homogeneous or heterogeneous, defined by whether they store a single or multiple basic data types, respectively.</li>
 </ul>
 <p>Combining both criteria, we get the following classification of R’s data structures (see <a href="http://adv-r.had.co.nz/Data-structures.html">this chapter</a> for more):</p>
-<pre><code>| Homogeneous | Heterogeneous</code></pre>
-<p>—-|————-|————–
-1d |Atomic vector| List
-2d |Matrix | Data frame</p>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th>Homogeneous</th>
+<th>Heterogeneous</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1D</td>
+<td>Atomic vector</td>
+<td>List</td>
+</tr>
+<tr class="even">
+<td>2D</td>
+<td>Matrix</td>
+<td>Data frame</td>
+</tr>
+</tbody>
+</table>
 <p>They are created with specific functions:</p>
 <pre class="r"><code>my_vector &lt;- c(1, 2, 3)
 my_list &lt;- list(1, &quot;Ferran&quot;, TRUE)
