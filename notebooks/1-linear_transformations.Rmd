@@ -103,7 +103,7 @@ Given a matrix A, we can attach different concepts to it:
 * **Null space**: vector space comprising all the vectors x such that Ax = 0; i.e., the set of vectors that are mapped to 0 by the linear transformation encoded by A.
 
 Again, the main objective is **to develop the geometric intuition of linear transformations to see how all these concepts are connected**:
-![](img/linear_transformations_shed_light.png)
+![](../img/linear_transformations_shed_light.png)
 
 There are two of these relations that are useful to understand algebraically:
 
