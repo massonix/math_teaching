@@ -26,8 +26,8 @@ library(xtable)
 library(MASS)
 
 # Source script
-# setwd("~/Google Drive/single_cell/PhD/trainings/math_teaching/")
-source("utils.R")
+setwd("~/Google Drive/single_cell/PhD/trainings/math_teaching/")
+source("utils_linear_transformations.R")
 
 # Create user interface
 ui <- fluidPage(
