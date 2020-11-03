@@ -32,7 +32,7 @@ This hands-on session comprises some challenging concepts. We believe that all t
 
 # Description of the problem
 
-We want to find a suitable solution for a system of linear equations Ax = b that has no proper, exact solution in the traditional sense. We can approach this problem from two different perspectives, which master Gilbert Strang refer to as the "row and column pictures" of a system of equations.
+We want to find a suitable solution for a system of linear equations Ax = b that has no proper, exact solution in the traditional sense. We can approach this problem from two different perspectives, which master Gilbert Strang refers to as the "row and column pictures" of a system of equations.
 
 
 ## Row picture
@@ -96,7 +96,7 @@ ggplot(df) +
   theme(axis.title = element_text(size = 13, face = "bold"))
 ```
 
-This is typically the case in **systems of linear equations with more equations than unknowns**. We can think of these as systems with "tall and skinny matrices" (more rows than columns). 
+This is typically the case in **systems of linear equations with more equations than unknowns**. We can think of these as systems with "tall and thin matrices" (more rows than columns). 
 
 The term "row picture" is reminiscent of the fact that each row of the system represents an equation, and every linear equation in the plane has typically not just one but many --a straight line of-- solutions.
 
@@ -131,7 +131,7 @@ $$
 Thus, Ax = b has no proper solution in the traditional sense whenever b is not contained in C(A). In other words, there is no two x<sub>1</sub> and x<sub>2</sub> that specify a linear combination of a<sub>1</sub> and a<sub>2</sub> that produces b. 
 
 **Exercise**
-To geometrically visualize this, enter to the shiny app associated with this tutorial by clicking the following link or copying it into your browser:
+To geometrically visualize this, enter the shiny app associated with this tutorial by clicking the following link or copying it into your browser:
 
 [https://massonix.shinyapps.io/projections_onto_subspaces/](https://massonix.shinyapps.io/projections_onto_subspaces/)
 
@@ -246,7 +246,7 @@ $$
 
 ## Find p
 
-Let us find p, which remember that is the projection of b onto C(A):
+Let us find p, which, as you remember, is the projection of b onto C(A):
 
 $$
 p = A \widehat{x} = A (A^T A)^{-1} A^Tb
@@ -268,19 +268,19 @@ Now we can pursue one more step to find the matrix P encoding the orthogonal pro
 
 Projection matrices have two interesting properties:
 
-1. It's symmetric
+1. They are symmetric
 
 $$
 P^T = P
 $$
 
-2. If you square it you get P
+2. If you square them, you get P
 
 $$
 P^2 = P
 $$
 
-Can you guess why? Hint: Think about what happens if you project the vector p again onto C(A)
+Can you guess why? Hint: Think about what happens if you project the vector p again onto C(A).
 
 
 # Introduction to ggplot2
@@ -378,7 +378,7 @@ In our real problem, we have `r nrow(gapminder_2002)` equations for only two unk
 **Challenge**: To get a sense of how b, p and e translate in the context of a least squares problem try the shiny app.
 
 
-To solve for m an n, we will first create the matrix A and the vector b. Note that the first column of A is the gdpPercap, and the vector b is  the lifeExp:
+To solve for m and n, we will first create the matrix A and the vector b. Note that the first column of A is the gdpPercap, and the vector b is  the lifeExp:
 
 ```{r}
 num_rows <- nrow(gapminder_sub)
