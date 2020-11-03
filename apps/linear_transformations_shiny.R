@@ -26,7 +26,7 @@ library(xtable)
 library(MASS)
 
 # Source script
-source("utils.R")
+source("utils_linear_transformations.R")
 
 # Create user interface
 ui <- fluidPage(
@@ -57,7 +57,7 @@ ui <- fluidPage(
     mainPanel(
       tabsetPanel(
         type = "tabs",
-        tabPanel("Visualization",  plotlyOutput("plot")),
+        tabPanel("Visualization",  plotlyOutput("plot", width = "800px", height = "400")),
         tabPanel(
           "Gauss-Jordan", 
           tableOutput("gauss_matrix"), 
@@ -77,8 +77,9 @@ ui <- fluidPage(
 
 # Define server function
 mat_list <- list(matrix(), matrix())
-assignment_message <- ""
 server <- function(input, output, session) {
+  mat_list <- reactiveValues()
+  assignment_message <- reactiveVal("")
   observeEvent(input$dimension, {
     mat_options <- list(
       "2D" = matrix(c(1, 0, 0, 1), nrow = 2, ncol = 2, byrow = FALSE),
@@ -114,87 +115,93 @@ server <- function(input, output, session) {
     }
   })
   observeEvent(input$transform_mat, {
-    mat_list <<- list(
-      input$transform_mat,
-      diag(nrow(input$transform_mat))
-    )
-    output$gauss_matrix <- renderTable({
-      as.character(fractions(mat_list[[1]]))
-    }, colnames = FALSE)
-    output$gauss_identity <- renderTable({
-      as.character(fractions(mat_list[[2]]))
-    }, colnames = FALSE)
+    assignment_message("")
+    mat_list$A <- input$transform_mat
+    mat_list$I <- diag(nrow(input$transform_mat))
+    output$gauss_matrix <- isolate(renderTable({
+      as.character(fractions(mat_list$A))
+    }, colnames = FALSE))
+    output$gauss_identity <- isolate(renderTable({
+      as.character(fractions(mat_list$I))
+    }, colnames = FALSE))
   })
   observeEvent(input$play, {
     if (nrow(input$transform_mat) == 2) {
-      assignment_message <<- str_c(
-        assignment_message,
-        apply_gauss_jordan_2d(mat_list[[1]], mat_list[[2]])[3],
+      assignment_message(str_c(
+        assignment_message(),
+        apply_gauss_jordan_2d(mat_list$A, mat_list$I)[3],
         sep = ""
-      )
-      mat_list <<- apply_gauss_jordan_2d(mat_list[[1]], mat_list[[2]])[1:2]
+      ))
+      mat_list_curr <- apply_gauss_jordan_2d(mat_list$A, mat_list$I)[1:2]
+      mat_list$A <- mat_list_curr[[1]]
+      mat_list$I <- mat_list_curr[[2]]
     } else if (nrow(input$transform_mat) == 3) {
-      assignment_message <<- str_c(
-        assignment_message,
-        apply_gauss_jordan_3d(mat_list[[1]], mat_list[[2]])[3],
+      assignment_message(str_c(
+        assignment_message(),
+        apply_gauss_jordan_3d(mat_list$A, mat_list$I)[3],
         sep = ""
-      )
-      mat_list <<- apply_gauss_jordan_3d(mat_list[[1]], mat_list[[2]])[1:2]
+      ))
+      mat_list_curr <- apply_gauss_jordan_3d(mat_list$A, mat_list$I)[1:2]
+      mat_list$A <- mat_list_curr[[1]]
+      mat_list$I <- mat_list_curr[[2]]
     }
     output$assignment_message <- renderText({ 
-      assignment_message
+      assignment_message()
     })
     output$gauss_matrix <- renderTable({
-      as.character(fractions(mat_list[[1]]))
+      as.character(fractions(mat_list$A))
     }, colnames = FALSE)
     output$gauss_identity <- renderTable({
-      as.character(fractions(mat_list[[2]]))
+      as.character(fractions(mat_list$I))
     }, colnames = FALSE)
   })
   observeEvent(input$rewind, {
-    assignment_message <<- ""
-    mat_list <<- list(
-      input$transform_mat,
-      diag(nrow(input$transform_mat))
-    )
-    output$assignment_message <- renderText({ 
-      assignment_message
+    assignment_message("")
+    mat_list$A <- input$transform_mat
+    mat_list$I <- diag(nrow(input$transform_mat))
+    output$assignment_message <- renderText({
+      assignment_message("")
+      assignment_message()
     })
     output$gauss_matrix <- renderTable({
-      as.character(fractions(mat_list[[1]]))
+      as.character(fractions(mat_list$A))
     }, colnames = FALSE)
     output$gauss_identity <- renderTable({
-      as.character(fractions(mat_list[[2]]))
+      as.character(fractions(mat_list$I))
     }, colnames = FALSE)
   })
   observeEvent(input$advance, {
     if (nrow(input$transform_mat) == 2) {
-      while (any(mat_list[[1]] != apply_gauss_jordan_2d(mat_list[[1]], mat_list[[2]])[[1]])) {
-        assignment_message <<- str_c(
-          assignment_message,
-          apply_gauss_jordan_2d(mat_list[[1]], mat_list[[2]])[3],
+      while (any(mat_list$A != apply_gauss_jordan_2d(mat_list$A, mat_list$I)[[1]])) {
+        assignment_message(str_c(
+          assignment_message(),
+          apply_gauss_jordan_2d(mat_list$A, mat_list$I)[3],
           sep = ""
-        )
-        mat_list <<- apply_gauss_jordan_2d(mat_list[[1]], mat_list[[2]])[1:2]
+        ))
+        mat_list_curr <- apply_gauss_jordan_2d(mat_list$A, mat_list$I)[1:2]
+        mat_list$A <- mat_list_curr[[1]]
+        mat_list$I <- mat_list_curr[[2]]
       }
     } else if (nrow(input$transform_mat) == 3) {
-      while (any(mat_list[[1]] != apply_gauss_jordan_3d(mat_list[[1]], mat_list[[2]])[[1]])) {
-        assignment_message <<- str_c(
-          assignment_message,
-          apply_gauss_jordan_3d(mat_list[[1]], mat_list[[2]])[3],
+      while (any(mat_list$A != apply_gauss_jordan_3d(mat_list$A, mat_list$I)[[1]])) {
+        assignment_message(str_c(
+          assignment_message(),
+          apply_gauss_jordan_3d(mat_list$A, mat_list$I)[3],
           sep = ""
-        )
-        mat_list <<- apply_gauss_jordan_3d(mat_list[[1]], mat_list[[2]])[1:2]
+        ))
+        mat_list_curr <- apply_gauss_jordan_3d(mat_list$A, mat_list$I)[1:2]
+        mat_list$A <- mat_list_curr[[1]]
+        mat_list$I <- mat_list_curr[[2]]
       }
     }
     output$assignment_message <- renderText({ 
-      assignment_message
+      assignment_message()
     })
     output$gauss_matrix <- renderTable({
-      as.character(fractions(mat_list[[1]]))
+      as.character(fractions(mat_list$A))
     }, colnames = FALSE)
     output$gauss_identity <- renderTable({
-      as.character(fractions(mat_list[[2]]))
+      as.character(fractions(mat_list$I))
     }, colnames = FALSE)
   })
 }

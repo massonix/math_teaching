@@ -34,12 +34,12 @@ Checkout the pre-requisites in the course website.
 
 Simply put, we can think of a transformation as a function or program: something that takes an input vector and "spits" an output vector. Such a transformation is deemed "linear" if it fulfills two additional requirements:
 
-1. Doing the transformation of a sum of vectors gives the same result as doing the sum of the respective transformations:
+1. Applying the transformation of a sum of vectors gives the same result as applying the sum of the respective transformations:
 
 $$
 L(u + v) = L(u) + L(v)
 $$
-2. Scaling a vector by a scalar $\lambda$ then doing the transformation gives the same result as doing the transformation of the vector first then scaling the result by $\lambda$:
+2. Scaling a vector by a scalar $\lambda$ then applying the transformation gives the same result as applying the transformation of the vector first then scaling the result by $\lambda$:
 
 $$
 L(\lambda u) = \lambda L(u)
@@ -103,13 +103,13 @@ Given a matrix A, we can attach different concepts to it:
 * **Null space**: vector space comprising all the vectors x such that Ax = 0; i.e., the set of vectors that are mapped to 0 by the linear transformation encoded by A.
 
 Again, the main objective is **to develop the geometric intuition of linear transformations to see how all these concepts are connected**:
-![](img/linear_transformations_shed_light.png)
+![](../img/linear_transformations_shed_light.png)
 
 There are two of these relations that are useful to understand algebraically:
 
 1. Relation between rank and dim(N(A)):
 
-A matrix A is full rank (= all column vectors are linearly independent) if and only if the null space is the zero vector space. You can find the proof of this theorem in the [Khan Academy](https://en.khanacademy.org/) videos in the prerequisites sections.
+A matrix A is full rank (which also means that all column vectors are linearly independent) if and only if the null space is the zero vector space. You can find the proof of this theorem in the [Khan Academy](https://en.khanacademy.org/) videos in the prerequisites sections.
 
 In a more condensed notation:
 $$
@@ -117,19 +117,21 @@ a_1, \ldots, a_n \hspace{0.2cm} \textrm{are linearly independent} \Longleftright
 $$
 2. Relation between dim(N(A)) and invertibility:
 
-If A is a square matrix, A is invertible if and only if the null space is the zero vector space. You can find the proof of this theorem in the [third lecture](https://www.youtube.com/watch?v=FX4C-JpTFgY) of the MIT course in linear algebra, by Gilbert Strang (timestamps: 27:56-31:50).
+If A is a square matrix, A is invertible if and only if the null space is the zero vector space. You can find the proof of this theorem in the [third lecture](https://www.youtube.com/watch?v=FX4C-JpTFgY) (timestamps: 27:56-31:50) of the MIT course in linear algebra, by Gilbert Strang.
 
 
 # Shiny app walkthrough
 
-Herein, we will walk you through our shiny app that will allow us to fully understand linear transformations. Start by clicking the following link (or paste it to your favorite web browser):
+Herein, we will walk you through our shiny app that will allow you to fully understand linear transformations. Start by clicking the following link (or pasting it to your favorite web browser):
 
 [https://massonix.shinyapps.io/linear_transformations/](https://massonix.shinyapps.io/linear_transformations/)
 
 As you can see, there are 4 tabs:
 
-1. Visualization, which has two components. First, it contains an input box where the user should specify the number of dimensions and the matrix A that defines the linear transformation. Second, the plot pane shows the input and the output of the transformation.
-2. Gauss-Jordan. It contains a calculator that performs Gauss-Jordan column-wise. The algorithm can be run either stepwise, with the option to fast-forward to the final result. As expected, it gives us two outputs: column echelon form (top) and transformation matrix (bottom). With this tab you can get an intuition of the Fundamental Theorem of Linear Algebra.
+1. Visualization, which has two components. Visualization, which has two components. First there is an input box where the user should
+specify the number of dimensions and the matrix A that defines the linear transformation. Second there is
+the plot pane that shows the input and the output of the transformation.
+2. Gauss-Jordan. It contains a calculator that performs Gauss-Jordan elimination column-wise. The algorithm can be run either step-wise or fast-forwarded to the final result. As expected, it gives us two outputs: column echelon form (top) and transformation matrix (bottom). With this tab you can get an intuition of the Fundamental Theorem of Linear Algebra.
 3. Null Space. It calculates and represents the null space of the input matrix.
 4. Determinant. It calculates the determinant of the input matrix.
 
@@ -164,15 +166,15 @@ After this, you should realize two important connections:
 
 ## Basic transformations
 
-**Exercise: find the matrix that describes the following transformations of 2d space:**
+**Exercise: find the matrix that describes the following transformations of 2D space:**
 
 1. expands all lengths by a factor of 2 in all axes;
 2. shrinks all lengths by a factor of 1/3;
-3. rotates all vectors by $\pi/6$ radians (30 degrees) about the origin (hint: use unit circle).
+3. rotates all vectors by $\pi/6$ radians (30 degrees) about the origin (hint: use [unit circle](https://en.wikipedia.org/wiki/Unit_circle) and this [trigonometry calculator](https://www.rapidtables.com/calc/math/trigonometry-calculator.html)).
 4. reflects all vectors about the y-axis.
 5. projects all vectors onto the x-axis.
 
-**Exercise: find the matrix that describes the following transformations of 3d space:**
+**Exercise: find the matrix that describes the following transformations of 3D space:**
 
 1. expands all lengths by a factor of 2 in all axes;
 2. shrinks all lengths by a factor of 1/2;
@@ -219,38 +221,123 @@ In the previous exercise, try to find the matrix that describes the following tr
 
 # Matrix algebra with R
 
-This section aims to teach the fundamentals of R to be able to perform linear algebra operations and visualize them. We will start by teaching the basic data structures, categorized by dimensionality (1D: atomic vectors + lists; 2D: matrices + data.frames) and whether they can contain only one value type (homogeneous: atomic vectors and matrices) or more than one (heterogeneous: lists and data.frames). Moreover, here I showcase an example of the main functions we should cover in the hands-on session:
+## Introduction to R
 
-
+R is an open-source and **vectorized** programming language. In R we never deal with scalars: single values are vectors of length 1:
 
 ```{r}
-# Load packages
-library(Seurat)
-library(SeuratData)
-library(pheatmap)
+x <- 5
+length(x)
+```
+
+It is also a **functional** programming language, which means that operations are centered around functions, and that it provides many tools for the creation and manipulation of functions (see [this book](http://adv-r.had.co.nz/) for more). Most importantly, functions take inputs, and this inputs can be of many different classes:
+
+```{r}
+class(x)
+```
+
+### Basic data types
+
+We have 3 basic data types: numerics, characters and logicals:
+
+Numerics are needed to perform arithmetic operations:
+
+```{r}
+y <- 9
+z <- x + y
+class(z)
+```
+
+Characters are what in other languages are known as strings:
+
+```{r}
+quote <- "Gilbert Strang rocks!"
+print(quote)
+```
+
+Finally, logicals (known as booleans in other programming languages) are important in conditions:
+
+```{r}
+(5 + 5) == 10
+(6 - 7) > 0
+```
+
+We can convert between data types with the `as.*()` functions:
+
+```{r}
+logical <- TRUE
+as.character(logical)
+as.numeric(logical)
+```
 
 
+### Compound data types
+
+When we have more than one element, we can think of compound data types. They can be classified using two criteria:
+
+- Dimension: 1D or 2D
+- Homogeneous or heterogeneous, defined by whether they store a single or multiple basic data types, respectively.
+
+Combining both criteria, we get the following classification of R's data structures (see [this chapter](http://adv-r.had.co.nz/Data-structures.html) for more):
+
+|    | Homogeneous   | Heterogeneous |
+|----|---------------|---------------|
+| 1D | Atomic vector | List          |
+| 2D | Matrix        | Data frame    |
+
+They are created with specific functions:
+
+```{r}
+my_vector <- c(1, 2, 3)
+my_list <- list(1, "Ferran", TRUE)
+my_matrix <- matrix(c(1, 2, 3, 4), nrow = 2, ncol = 2, byrow = FALSE)
+my_data_frame <- data.frame(name = c("Ferran", "Ramon"), is_postdoc = c(TRUE, FALSE))
+my_vector
+my_list
+my_matrix
+my_data_frame
+```
+
+As you can imagine, these data structures are used for different purposes and taken by distinct functions. Here, we will focus on matrices.
+This section aims to teach the fundamentals of R so that you will be able to perform linear algebra operations and visualize them. We will start by teaching the basic data structures, categorized by dimensionality (1D: atomic vectors + lists; 2D: matrices + data.frames) and whether they can contain only one value type (homogeneous: atomic vectors and matrices) or more than one (heterogeneous: lists and data.frames). Moreover, here I showcase an example of the main functions we should cover in the hands-on session:
+
+
+## Create, subset and combine matrices in R
+
+We will show these operations for both atomic vectors and matrices. Let us start by creating two examples:
+
+```{r}
 # Create
 x <- c(1, 2, 3)
 A <- matrix(c(1, 2, 3, 4, 5, 6, 7, 8, 9), nrow = 3, ncol = 3, byrow = FALSE)
 x 
 A
+```
 
 
-# Get dimensions
+Get the dimensions:
+
+```{r}
 length(x)
 dim(A)
 nrow(A)
 ncol(A)
+```
 
 
-# Name
+To ease subsetting we can name rows and columns as follows:
+
+```{r}
 names(x) <- c("1", "2", "3")
 rownames(A) <- c("a", "b", "c")
 colnames(A) <- c("x", "y", "z")
 x
 A
+```
 
+There are 3 ways of subsetting a vector: by index, by character or by logicals:
+
+```{r}
 # Subset
 ## Numeric
 x[1]
@@ -259,24 +346,27 @@ x[c(3, 3)]
 A[1:3, -2]
 
 ## Character
-x["b"]
+x["2"]
 A[c("a", "b"), ]
-
-## Logical
-# x[c(FALSE, TRUE, TRUE)]
-# x > 1
-# x[x > 1]
-
 ```
 
 **Challenge**: Create a vector from 1 to 100 (included), and then filter it to keep only the multiples of three. You're not allowed to use the `seq()` function.
 
+We can concatenate vectors and matrices as follows:
+
 ```{r}
 # Concatenate
+y <- c(5, 6)
+z <- c(x, y)
+z
 rbind(A, x)
 cbind(A, x)
+```
 
 
+## Basic operations with matrices
+
+```{r}
 # Transpose
 t(A)
 
@@ -287,6 +377,7 @@ A * x
 A %*% x
 t(x[1] %*% A[, 1]) + t(x[2] %*% A[, 2]) + t(x[3] %*% A[, 3])
 
+
 # Matrix-Matrix operations
 A + A
 A * A
@@ -296,13 +387,15 @@ A %*% A
 
 ## Heatmap
 
-A crucial point in bioinformatics is to be able to visualize matrices. In real-world settings, matrices that harbor biological data (i.e. expression matrices) are to large to read them. In this context, heatmap represent a great alternative to pinpoint patterns in the data. You can read more about heatmaps [here](https://en.wikipedia.org/wiki/Heat_map).
+A crucial skill in bioinformatics is to be able to visualize matrices. In real-world settings, matrices that harbor biological data (i.e. expression matrices) are too large to read them. In this context, heatmap represent a great alternative to pinpoint patterns in the data. You can read more about heatmaps [here](https://en.wikipedia.org/wiki/Heat_map).
 
 
-We will show you how to plot heatmaps in R using the `pheatmap` package. As an example, we will use a single-cell gene expression matrix of 2,638 peripheral blood mononuclear cells ([PBMC](https://en.wikipedia.org/wiki/Peripheral_blood_mononuclear_cell)). We download this data using the [`Seurat`](https://satijalab.org/seurat/) package, which has become a swiss-knife software to analyze scRNA-seq data. The following chunk of code is executed to get the toy expression matrix, but you are not expected to understand it:
+We will show you how to plot heatmaps in R using the `pheatmap` package. As an example, we will use a single-cell gene expression matrix of 2,638 peripheral blood mononuclear cells ([PBMC](https://en.wikipedia.org/wiki/Peripheral_blood_mononuclear_cell)). We download this data using the [`Seurat`](https://satijalab.org/seurat/) package,  which has become a swiss-army-knife of
+the software to analyze scRNA-seq data. The following chunk of code is executed to get the toy expression matrix, but you are not expected to understand it:
 
 ```{r}
 # Get data
+library(pheatmap)
 library(Seurat)
 library(SeuratData)
 library(dplyr)
@@ -335,7 +428,7 @@ colnames(col_metadata) <- "cell_type"
 ```
 
 
-Now, we will plot the heatmap. The `pheatmap()` function has a lot of parameters to fine-tune the visualization, we suggest you explore the documentation executing `?pheatmap`:
+Now we will plot the heatmap. The `pheatmap()` function has a lot of parameters to fine-tune the visualization, we suggest you explore the documentation executing `?pheatmap`:
 
 
 ```{r}
