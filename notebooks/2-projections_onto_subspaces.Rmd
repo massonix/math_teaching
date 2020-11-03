@@ -37,7 +37,7 @@ We want to find a suitable solution for a system of linear equations Ax = b that
 
 ## Row picture
 
-Let us illustrate the problem with the following system of equations:
+Let us illustrate the problem with the following systemmm of equations:
 
 ```{r echo=FALSE}
 system_equations <- noquote(paste(expression("x+0y=6\\\\x+y=0\\\\x+2y=0")))
