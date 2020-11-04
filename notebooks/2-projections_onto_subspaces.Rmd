@@ -106,7 +106,7 @@ The term "row picture" is reminiscent of the fact that each row of the system re
 Understanding Ax = b using the column picture is the ultimate goal of linear algebra. We do not think of equations and unknowns anymore. Instead, we interpret the elements of this problem as follows: 
 
 * The matrix A specifies two column vectors (a<sub>1</sub> and a<sub>2</sub>). All the possible linear combinations of a<sub>1</sub> and a<sub>2</sub> (their span) are collectively known as the column space of A, or C(A).
-* The elements of x (x<sub>1</sub> and x<sub>2</sub> hereafter) specify which linear combination of a1 and a2 to take. * b specifies the result of a specific choice of x.
+* The elements of x (x<sub>1</sub> and x<sub>2</sub> hereafter) specify which linear combination of a<sub>1</sub> and a<sub>2</sub> to take. The vector b specifies the result of a specific choice of x.
 
 The algebraic interpretation of the column picture of the previous example is the following:
 
@@ -285,28 +285,81 @@ Can you guess why? Hint: Think about what happens if you project the vector p ag
 
 # Introduction to dplyr and ggplot2
 
-https://towardsdatascience.com/a-comprehensive-guide-to-the-grammar-of-graphics-for-effective-visualization-of-multi-dimensional-1f92b4ed4149
+In this session we move our focus from matrices to dataframes. Remember that dataframes are data structures that are 2 dimensional (tabular) and heterogeneous (can handle numerics, characters and logicals together). Intuitively, you can think of them as spreadsheets.
 
-https://vita.had.co.nz/papers/tidy-data.pdf
+Here, we will introduce the [tidyverse](https://www.tidyverse.org/). As defined by the authors: "The tidyverse is an opinionated collection of R packages designed for data science. All packages share an underlying design philosophy, grammar, and data structures". There is an [entire book](https://r4ds.had.co.nz/) to learn how to use this ecosystem; which at its core aims to simplify the data analysis life cycle:
 
-Here, we will teach a basic skill that was not taught in our year and we find essential: high-quality graphics with ggplot2. Before, we need to explain the basics of tidy data, which is the input to ggplot2:
+![](../img/data_science_workflow.png)
+(Image obtained from [this link](https://r4ds.had.co.nz/explore-intro.html))
 
-1. Observations are rows
-2. Variables are columns
-3. Observational units form a table
+In particular, we will focus on two crucial steps: transform and visualize; which are accomplished with the dplyr and ggplot2 packages, respectively.
 
-Moreover, ggplot2 is built based on *the grammar of graphics* philosophy. Thus, we should spend a few minutes introducing it.
+## Dplyr
 
-Finally, to give a quick example of ggplot2 plotting, we can reproduce the gapminder scatterplot, which correlates life expectancy and GDP for each country:
+To introduce this package, we will work with the iconic [gapminder dataset](https://cran.r-project.org/web/packages/gapminder/README.html), which contains information on population size, gross domestic product (GDP) and life expectancy for each country across several years. Let us start by loading it into memory:
 
 ```{r}
-# Plot gapminder data, including a regression line in the scatter plot
 library(tidyverse)
-gapminder::gapminder %>% 
-  head()
+gapminder <- as.data.frame(gapminder::gapminder)
+head(gapminder)
+```
 
-# Filter to 2002
-gapminder_2002 <- gapminder::gapminder[gapminder::gapminder$year == 2002, ]
+Dplyr is centered around 5 verbs:
+
+* `filter()`: get rows that fulfill a specific condition.
+* `select()`: select specific columns.
+* `arrange()`: sort rows in a certain order.
+* `mutate()`: create new variables from existing ones.
+* `summarise()`: collapse many values down to a single one.
+
+All this functions can be used together with the `group_by()` function to apply these verbs grouped by a categorical variable.
+
+In addition, dplyr aims to maximize code readability. To this end, it uses the pipe operator (`%>%`) from the [magrittr](https://cran.r-project.org/web/packages/magrittr/vignettes/magrittr.html) package to create the so-called pipelines.
+![](../img/pipe_maggrittr.png)
+(Image obtained from [this link](https://cran.r-project.org/web/packages/magrittr/vignettes/magrittr.html))
+
+Example pipeline: "Starting with the gapminder dataset, filter all rows from 2002, and then select the continent and population. With that, group the rows by continent and summarise the dataset to the mean population for each continent. Finally, arrange the results in descending order".
+
+```{r}
+pop_by_continent <- gapminder %>%
+  filter(year == "2002") %>%
+  select("continent", "pop") %>%
+  group_by(continent) %>%
+  summarise(mean_pop = mean(pop)) %>%
+  arrange(desc(mean_pop))
+pop_by_continent
+```
+As we can see, dplyr makes it easy to translate a thought into clear code.
+
+## ggplot2
+
+The input to ggplot2 is a tidy dataset which is defined by the following properties:
+
+1. Observations are rows.
+2. Variables are columns.
+3. Observational units form a table.
+
+In short, you cannot have variables in the observations (rows) or values of a variable as columns. If that is the case, you would need to tidy the dataset (with [tidyr](https://tidyr.tidyverse.org/)) prior to data visualization. [In this link](https://towardsdatascience.com/whats-tidy-data-how-to-organize-messy-datasets-in-python-with-melt-and-pivotable-functions-5d52daa996c9) you can find examples of messy data.
+
+The underlying philosophy of ggplot2 is the grammar of graphics. This grammar entails that plots are formed with several components, whose relationships are structured in a layered hierarchy. This hierarchy is better visualized as a pyramid:
+
+![](../img/grammar_of_graphics_pyramid.png)
+
+(Image obtained from [this link](https://towardsdatascience.com/a-comprehensive-guide-to-the-grammar-of-graphics-for-effective-visualization-of-multi-dimensional-1f92b4ed4149))
+
+The important concept is clearly the **layered hierarchy**, which means that (1) some components of the plot are defined first than others and (2) the plot is composed one layer at a time. The main layers, by order, are the following:
+
+* Data: tidy dataframe.
+* Aesthetics: this word is a bit confusing at first. Aesthetics refers to every element of the plot that has a sense of "scale", and to which you can assign a variable. Examples include x and y axis, color, shape and size, among others.
+* Geometric objects (know as geoms): which type of plot do you want to obtain? Here is were you specify if you want a violin, box, bar or scatterplot, for example.
+* Themes: controls the styling of the plot: fontsize, width of the axis, etc.
+
+As an example, we can plot the correlation between life expectancy and GDP for each country:
+
+
+```{r}
+gapminder_2002 <- gapminder %>%
+  filter(year == 2002)
 gapminder_2002 %>% 
   ggplot(aes(gdpPercap, lifeExp, color = continent, size = pop)) +
     geom_point() +
@@ -314,14 +367,6 @@ gapminder_2002 %>%
     scale_x_log10() +
     labs(x = "Income", y = "Life Expectancy") +
     theme_classic()
-
-
-# Actually fit the regression model
-lm_model <- lm(lifeExp ~ log10(gdpPercap), data = gapminder::gapminder)
-slope <- lm_model$coefficients[2]
-y_intercept <- lm_model$coefficients[1]
-print(slope)
-print(y_intercept)
 ```
 
 
