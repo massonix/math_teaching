@@ -140,7 +140,7 @@ Then, in the left hand side of the app enter the matrix A and the vector b. The 
 
 # Solving the problem
 
-As we have seen above, there is in general no vector x that will provide a proper solution of Ax = b in the traditional sense. However, we can provide "the best solution we can" by finding the vector p = $\widehat{x}$<sub>1</sub> a<sub>1</sub> + ··· + $\widehat{x}$<sub>n</sub> a<sub>n</sub> that is **as close as possible to the vector b**. To make the "as close as possible" more precise, we will consider the closest vector to b that cuts the column space C(A) by moving perpendicularly with respect to C(A), i.e., **p** will be the orthogonal projection of **b** onto C(A). You can clearly visualize this in the shiny app. 
+As we have seen above, there is in general no vector x that will provide a proper solution of Ax = b in the traditional sense. However, we can provide "the best solution we can" by finding the vector p = $\widehat{x}$<sub>1</sub> a<sub>1</sub> + ··· + $\widehat{x}$<sub>n</sub> a<sub>n</sub> that is **as close as possible to the vector b**. To make the "as close as possible" more precise, we will consider the closest vector to b that cuts the column space C(A) by moving perpendicularly with respect to C(A), i.e., p will be the vector obtained with an orthogonal projection of b onto C(A). You can clearly visualize this in the shiny app. 
 
 As p is in C(A), we can find a vector $\widehat{x}$ that solves the new system: A$\widehat{x}$ = p.
 
@@ -150,19 +150,19 @@ We will analyze this problem in three steps, which are highlighted in the sectio
 
 Once we have accomplished this part, the problem will be solved in practice. However, we also want to inquiry what is the orthogonal projection that has been applied under the hood. Hence we will pursue the next two steps:
 
-2. Find the projected vector p = A\widehat{x}
-3. Find the projection matrix P
+2. Find the projected vector p = A$\widehat{x}$.
+3. Find the projection matrix P.
 
 We will develop each of the steps and apply them to solve the example above.
 
-## Find x^
+## Find $\widehat{x}$
 
 The key to find $\widehat{x}$ is in the geometry of the error vector e, defined as follows:
 
 $$
 e = b - p = b - A\widehat{x}
 $$
-As you can see in the app, e is orthogonal to C(A). Thus, **the scalar product of each column vector of A (a<sub>1</sub>,···, a<sub>n</sub>) and e is 0**. We can express this as a single matrix-vector product by transposing A, so that the column vectors become the rows of A^T^:
+As you can see in the app, e is orthogonal to C(A). Thus, **the dot product of each column vector of A (a<sub>1</sub>,···, a<sub>n</sub>) and e is 0**. We can express this as a single matrix-vector product by transposing A, so that the column vectors become the rows of A^T^:
 
 $$
 A^T e = 0
@@ -283,7 +283,11 @@ $$
 Can you guess why? Hint: Think about what happens if you project the vector p again onto C(A).
 
 
-# Introduction to ggplot2
+# Introduction to dplyr and ggplot2
+
+https://towardsdatascience.com/a-comprehensive-guide-to-the-grammar-of-graphics-for-effective-visualization-of-multi-dimensional-1f92b4ed4149
+
+https://vita.had.co.nz/papers/tidy-data.pdf
 
 Here, we will teach a basic skill that was not taught in our year and we find essential: high-quality graphics with ggplot2. Before, we need to explain the basics of tidy data, which is the input to ggplot2:
 
@@ -351,7 +355,7 @@ head(gapminder_sub, 3)
 ```
 
 
-Our purpose is to fit a line in the form of $lifeExp = m · log10(gdpPercap) + n$, where lifeExp (life expectancy) is the dependent (or response) variable, gdpPercap (per-capita Gross domestic product) is the independent (or explanatory) variable, m is the slope and n is the y-intercept. Hence, if we represent each of the rows of the previous `head` in this form, we would get the following toy system of linear equations:
+Our purpose is to fit a line in the form of $lifeExp = m · \log_{10}(gdpPercap) + n$, where lifeExp (life expectancy) is the dependent (or response) variable, gdpPercap (per-capita Gross domestic product) is the independent (or explanatory) variable, m is the slope and n is the y-intercept. Hence, if we represent each of the rows of the previous `head` in this form, we would get the following toy system of linear equations:
 
 ```{r echo=FALSE}
 system_equations2 <- noquote(paste(expression("2.86m+n=42.19\\\\3.66m+n=75.65\\\\3.72m+n=70.99")))
