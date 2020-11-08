@@ -361,7 +361,7 @@ As an example, we can plot the correlation between life expectancy and GDP for e
 gapminder_2002 <- gapminder %>%
   filter(year == 2002)
 gapminder_2002 %>% 
-  ggplot(aes(gdpPercap, lifeExp, color = continent, size = pop)) +
+  ggplot(aes(x = gdpPercap, y = lifeExp, color = continent, size = pop)) +
     geom_point() +
     geom_smooth(method = "lm", se = FALSE, color = "black") +
     scale_x_log10() +

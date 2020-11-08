@@ -1,0 +1,58 @@
+---
+title: "Principal Component Analysis in Bioinformatics"
+author: "Ferran Muiños and Ramon Massoni-Badosa"
+date: "11/08/2020"
+output: 
+  BiocStyle::html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Introduction and objectives
+
+In this hands-on session, we will show how principal component analysis (PCA) is used in common bioinformatics workflows. We will use a toy [single-cell RNA-seq (scRNA-seq)](https://www.nature.com/articles/s41596-018-0073-y) dataset to illustrate it.
+
+The main objectives are the following:
+
+- Explain how PCA allows to reduce the noise and the redundancy of the dataset.
+- Show how  principal components can act as hidden (or latent) variables that can be exploited to cluster observations into biologically meaningful groups.
+
+
+# Introduction to scRNA-seq
+
+![](../img/single-cell_fruit_salad.png)
+
+![](../img/single-cell_workflow.png)
+
+
+# Why use PCA?
+
+## Eliminate noise
+
+## Eliminate redundancy
+
+# Case-study
+
+```{r}
+
+```
+
+how much variance explained?
+what are the genes contributing the most to each PC?
+
+hierarchical clustering: concept of distance, pairwise distance.
+
+
+# Session Information
+
+```{r}
+sessionInfo()
+```
+
