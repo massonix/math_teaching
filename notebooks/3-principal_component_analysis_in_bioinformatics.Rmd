@@ -21,33 +21,62 @@ In this hands-on session, we will show how principal component analysis (PCA) is
 
 The main objectives are the following:
 
-- Explain how PCA allows to reduce the noise and the redundancy of the dataset. Potentially talk about the 'curse of dimensionality'.
-- Show how  principal components can act as hidden (or latent) variables that can be exploited to cluster observations into biologically meaningful groups.
-
-
-# Pre-requisites
-
-- Read [this tutorial](https://www.cs.cmu.edu/~elaw/papers/pca.pdf).
-- Eigendecomposition of a matrix
-- Singular Value Decomposition
-- PCA
-- Understand that total variance is computed by dividing a singular value over the sum of singular values. 
+- Understand the intuition behind PCA.
+- Learn to compute PCA in 3 ways in R: by eigendecomposition of the covariance matrix, by singular value decomposition and using the `prcomp` function.
+- Perform a case-study using scRNA-seq data.
 
 
 # Introduction to scRNA-seq
 
+Single-cell RNA-seq allows the gene expression profiling of thousands of cells, one a time. It is often exemplified using the following analogy:
+
 ![](../img/single-cell_fruit_salad.png)
 
+* Bulk RNA-seq would be analogous to a fruit smoothie, in which all we get is an average taste out of several fruits. Analogously, in bulk RNA-seq all we get is an average transcriptome across a population of cells.
+* scRNA-seq, on the other hand, is analogous to a fruit salad, in which you can taste one fruit at a time. Here, we get a transcriptome for each single cell, so we can understand cell-to-cell variability in gene expression.
+
+The scRNA-seq pipeline can be summarized in these 4 steps:
+
 ![](../img/single-cell_workflow.png)
+Image extracted from [this paper](https://www.nature.com/articles/s41596-018-0073-y).
+
+
+1. Sample preparation: cells are dissociated from their original tissue into single-cells using enzymatic or mechanical treatments. In addition, we can use FACS to enrich for a cell type of interest.
+2. Single-cell RNA-sequencing, which includes: single-cell capture (into droplets or wells), lysis, mRNA capture, reverse transcription, PCR amplification and Illumina sequencing.
+3. Data processing: map the fastq reads to obtain the gene expression matrix (cells by genes).
+4. Data analysis, which includes clustering, differential expression analysis, gene regulatory networks, etc.
 
 
 # Why use PCA?
 
-## Eliminate noise
+scRNA-seq is a double-edged sword. On the one hand, scRNA-seq provides unprecedented discriminative power to chart all the cell types and states in a given tissue. This has catalyzed the creation of [the Human Cell Atlas (HCA)](https://elifesciences.org/articles/27041), which aims to classify all cells in the human body using scRNA-seq; and has been coined as "the periodic table of human cells".
 
-## Eliminate redundancy
+![](../img/human_cell_atlas.png)
+
+On the other hand, however, scRNA-seq has a high degree of technical variability, which can be introduced at multiple points of the aforementioned pipeline. Some examples include the following:
+
+* Dissociation artifacts: enzymatic treatment (ie collagenase) is frequently used to dissociate tissues into single-cells. This can induce cellular stress that can be confounded by the variable of interest. Described in detail in [this paper](https://www.nature.com/articles/nmeth.4437?proof=t).
+* Doublets: Two cells that are processed together in a reaction volume (e.g., a well or droplet) and receive the same single-cell barcode.
+* Dropouts: Transcripts that are not detected in the final dataset even though the gene is expressed in the cell, leading to false zero values in the expression matrix. (Definitions extracted from table 1 of [this paper)](https://www.nature.com/articles/s41596-018-0073-y).
+
+
+In this scenario, PCA is used for 3 main purposes:
+
+1. Reduce the noise of the dataset: by finding the orthogonal axis that maximize the variance, PCA eliminates noise introduced by dropouts, transcriptional bursts, etc.
+2. Reduce the redundancy: as we see below, there is a vast degree of redundancy across gene sets. Thus, principal components can be interpreted as a "metagene": a score that summarizes information from a correlated set of genes.
+3. Reduce computational complexity: since we reduce the dimensionality, operations downstream such as clustering will be executed faster.
+
 
 # Case-study
+
+As an example, we will create an expression matrix with the following cells:
+
+* 4 T-cells (identified by high expression of CD3D and CD3E).
+* 3 monocytes (identified by high expression of LYZ and S100A8).
+* 3 naive B-cells (identified by high expression of CD79A, CD79B and BLNK).
+* 2 plasma cells (identified by B-cell and proliferation markers, such as TOP2A or MKI67).
+* 2 poor-quality cells (identified by high mitochondrial expression). If a cell has pores in the membrane due to cell lysis, the cytosolic mRNA will leak out of the cell; but if the diameter of mitochondria is higher than the pores, they will get trapped inside the cell.
+
 
 ## Load packages
 
@@ -55,7 +84,6 @@ The main objectives are the following:
 library(pheatmap)
 library(tidyverse)
 ```
-
 
 ## Create and visualize toy dataset
 
@@ -70,7 +98,7 @@ toy <- data.frame(
   CD79B = c(0, 0, 0, 0, 0, 0, 0, 5, 5, 3, 4, 6, 0, 0),
   BLNK = c(0, 0, 0, 0, 0, 0, 0, 6, 4, 5, 5, 4, 0, 0),
   TOP2A = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 9, 0, 0),
-  MKI = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 10, 0, 0),
+  MKI67 = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 10, 0, 0),
   MT_CO1 = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 23),
   MT_ND5 = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 22, 25) 
 )
@@ -81,7 +109,7 @@ toy <- as.matrix(toy)
 # Visualize
 pheatmap(toy, cluster_cols = FALSE, cluster_rows = FALSE, angle_col = 45)
 ```
-
+In the following image you can visualize the redundancy between CD79A and CD79B. Together, they form the heterodimer CD79; which means that for every molecule of CD79A we need one of CD79B. Under the hood they are the same variable, which should be captured by a single principal component. A good analogy would be to measure the height of a person in feet and in cm.
 
 ![](../img/CD79_figureA.png)
 ![](../img/CD79_figureB.png)
@@ -93,47 +121,71 @@ Images obtained from [this link](https://ashpublications.org/blood/article/120/6
 
 Three ways to perform PCA in R: 
 
+* Eigendecomposition of the covariance matrix.
+* Singular Value Decomposition.
+* `prcomp` function.
+
+Regardless of the method, we always need to center the data:
+
 ```{r}
-# Regardless of the method, we will center and scale the dataset
-toy_scaled <- scale(toy, center = TRUE, scale = TRUE)
+toy_centered <- scale(toy, center = TRUE, scale = FALSE)
+```
 
 
-# Eigendecomposition of the correlation matrix
-corr_matrix <- (1 / (nrow(toy_scaled) - 1)) * (t(toy_scaled) %*% toy_scaled)
-eigen_corr_matrix <- eigen(corr_matrix)
-eigen_corr_matrix$values
-pc_mat_by_eigen <- toy %*% eigen_corr_matrix$vectors
+Now we can compute the 3 ways:
+
+```{r}
+# Eigendecomposition of the covariance matrix
+cov_matrix <- (1 / (nrow(toy_centered) - 1)) * (t(toy_centered) %*% toy_centered)
+eigen_cov_matrix <- eigen(cov_matrix)
+head(eigen_cov_matrix$values)
+eigen_cov_matrix$vectors[1:6, 1:6]
+pc_mat_by_eigen <- toy %*% eigen_cov_matrix$vectors
+pc_mat_by_eigen[1:6, 1:6]
 
 
 # SVD
-toy_svd <- svd(toy)
-toy_svd$d
-toy_svd$v
-toy_svd$u
+toy_to_svd <- (1 / sqrt(nrow(toy) - 1)) * toy_centered
+toy_svd <- svd(toy_to_svd)
+head(toy_svd$d ** 2)
 
 
 # PCA
-pca_out <- prcomp(toy, scale = TRUE)
+pca_out <- prcomp(toy, center = TRUE)
 
 
 # The singular values, PC scores and gene loadings are in the sdev, x and
 # rotation, respectively
-pca_out$sdev
+head(pca_out$sdev ** 2)
 pca_out$x
 pca_out$rotation
+
+
+# PCA centered and scaled
+pca_out_scaled <- prcomp(toy, center = TRUE, scale. = TRUE)
 ```
 
-Proportion of variance explained (PVE): https://faculty.marshall.usc.edu/gareth-james/ISL/ISLR%20Seventh%20Printing.pdf
+Importantly, we obtain the following:
+
+* Gene loadings: `pca_out$rotation`
+* PC scores: `pca_out$x`
+* Variance associated to each PC: `pca_out$sdev ** 2`
+
+
+In addition, we can get the proportion of variance explained (PVE) and the cumulative proportion with the `summary` function (more info in [this book](https://faculty.marshall.usc.edu/gareth-james/ISL/ISLR%20Seventh%20Printing.pdf)):
 
 ```{r}
-summary(pca_out)
+summary(pca_out_scaled)
 ```
 
 ## Infer dimensionality of the dataset
 
+To reduce the dimensionality, we will choose the number of PC that explains most of the variance in the dataset. To this end, we use a so-called elbow plot:
+
+
 ```{r}
 # Calculate percentage of variance explained (PVE):
-pve <- pca_out$sdev ** 2 / sum(pca_out$sdev ** 2) * 100
+pve <- pca_out_scaled$sdev ** 2 / sum(pca_out$sdev ** 2) * 100
 pve <- round(pve, 2)
 pve_df <- data.frame(principal_component = 1:length(pve), pve = pve)
 pve_gg <- pve_df %>%
@@ -145,17 +197,36 @@ pve_gg <- pve_df %>%
     theme_bw()
 pve_gg
 ```
+Some people prefer to plot the cumulative percentage of explained variance:
+
+```{r}
+summ_pca <- summary(pca_out_scaled)
+cum_pct <- summ_pca$importance["Cumulative Proportion", ] * 100
+cum_pct_df <- data.frame(principal_component = 1:length(pve), cum_pct = cum_pct)
+cum_pct_gg <- cum_pct_df %>%
+  ggplot(aes(principal_component, cum_pct)) +
+    geom_point() +
+    geom_vline(xintercept = 4.5, linetype = "dashed", color = "darkblue") +
+    scale_x_continuous(breaks = 1:length(cum_pct)) +
+    scale_y_continuous(limits = c(0, 100)) +
+    labs(x = "Principal Component", y = "Cumulative Percentage of Variance Explained (%)") +
+    theme_bw()
+cum_pct_gg
+```
+
 
 Thus, we conclude that the first 4 PC are significant. Let us express each cell as a vector of the first 4 PC:
 
 ```{r}
-toy_reduced <- pca_out$x[, c("PC1", "PC2", "PC3", "PC4")]
-gene_loads_reduced <- pca_out$rotation[, c("PC1", "PC2", "PC3", "PC4")]
+toy_reduced <- pca_out_scaled$x[, c("PC1", "PC2", "PC3", "PC4")]
+gene_loads_reduced <- pca_out_scaled$rotation[, c("PC1", "PC2", "PC3", "PC4")]
 pheatmap(toy_reduced, cluster_rows = FALSE, cluster_cols = FALSE, angle_col = 45)
 ```
 
 
 ## Visualize gene loadings
+
+Now we have reduced the dimensionality of the dataset. To interpret each PC, let us inspect the gene loadings:
 
 ```{r}
 significant_pcs <- c("PC1", "PC2", "PC3", "PC4")
@@ -170,19 +241,27 @@ loadings_gg <- map(significant_pcs, function(x) {
       coord_flip()
   return(p)
 })
+loadings_gg
 ```
 
 Interpretation of the PC:
 
-*PC1: B cell identity.
-*PC2: T vs monocyte separation.
-*PC3: technical variation.
-*PC4: cell cycle.
+* PC1: B cell identity.
+* PC2: differences between monocytes and T cells.
+* PC3: technical variation.
+* PC4: cell cycle.
 
 
 ## Cluster cells
 
+Clustering means classifying observations into groups that minimize and maximize intra-group and inter-group distances, respectively.
+
+
 ### Calculate all pairwise Euclidean distances
+
+To that end we need a concept of distance, which basically measures how similar or different two vectors are. In our case we will use Euclidean distance, but be aware that there are a plethora of different options that can yield different clustering results.
+
+Let us start by computing all pairwise distances:
 
 ```{r}
 dist_mat <- dist(toy_reduced, method = "euclidean")
@@ -223,7 +302,7 @@ table(hc_clusters)
 annotation_rows <- data.frame(cluster = as.character(hc_clusters))
 rownames(annotation_rows) <- names(hc_clusters)
 pheatmap(
-  toy_scaled,
+  toy_centered,
   cluster_rows = FALSE,
   cluster_cols = FALSE,
   angle_col = 315,
@@ -247,7 +326,7 @@ annotated_clusters <- c("T-cells", "Monocytes", "Naive B-cells", "Plasma Cells",
 names(annotated_clusters) <- as.character(1:5)
 annotation_rows$annotation <- annotated_clusters[annotation_rows$cluster]
 pheatmap(
-  toy_scaled,
+  toy_centered,
   cluster_rows = FALSE,
   cluster_cols = FALSE,
   angle_col = 315,
@@ -255,8 +334,6 @@ pheatmap(
 )
 ```
 
-
-hierarchical clustering: concept of distance, pairwise distance.
 
 
 # Session Information
