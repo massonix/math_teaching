@@ -129,38 +129,83 @@ Regardless of the method, we always need to center the data:
 
 ```{r}
 toy_centered <- scale(toy, center = TRUE, scale = FALSE)
+toy_centered[1:6,1:6]
 ```
 
+Now we will compute the exact same thing (PCA) in the 3 ways. 
 
-Now we can compute the 3 ways:
+In each we will be tracking the same three pieces of information:
+
+* the principal directions (pdir), also known as loadings.
+* the variance of the data along each principal direction (var).
+* the scores of each data sample in the principal directions (score).
+
+### Eigendecompostion of the covariance matrix
+
+We will be computing an eigenbasis for the covariance matrix 
+$\Omega = \frac{1}{n-1}A^tA$ where $A$ is the centered data.
 
 ```{r}
-# Eigendecomposition of the covariance matrix
 cov_matrix <- (1 / (nrow(toy_centered) - 1)) * (t(toy_centered) %*% toy_centered)
 eigen_cov_matrix <- eigen(cov_matrix)
-head(eigen_cov_matrix$values)
-eigen_cov_matrix$vectors[1:6, 1:6]
-pc_mat_by_eigen <- toy %*% eigen_cov_matrix$vectors
-pc_mat_by_eigen[1:6, 1:6]
 
+pdir_eigen <- eigen_cov_matrix$vectors
+pdir_eigen[1:6,1:6]
 
-# SVD
-toy_to_svd <- (1 / sqrt(nrow(toy) - 1)) * toy_centered
-toy_svd <- svd(toy_to_svd)
-head(toy_svd$d ** 2)
+var_eigen <- eigen_cov_matrix$values
+head(var_eigen)
 
+scores_eigen <- toy_centered %*% pdir_eigen
+scores_eigen[1:6, 1:6]
+```
 
-# PCA
+### SVD
+
+We can apply SVD to the centered data $A$. Observe that if we want the singular 
+values to reflect the same statistical information as above, we need to correct
+by a factor of $1/\sqrt{n-1}$ where $n$ is the number of rows of $A$.
+
+```{r}
+toy_to_svd <- toy_centered
+toy_svd <- svd(toy_to_svd, nu = nrow(toy_to_svd))
+
+pdir_svd <- toy_svd$v
+pdir_svd[1:6,1:6]
+
+d_adjusted <- toy_svd$d * (1 / sqrt(nrow(toy) - 1))
+var_svd <- d_adjusted ** 2
+head(var_svd)
+
+sigma <- diag(toy_svd$d, nrow(toy_svd$u), ncol(toy_svd$v))
+scores_svd <- toy_svd$u %*% sigma
+scores_svd[1:6,1:6]
+```
+
+### PCA
+
+Stand-alone PCA function provided by R:
+
+```{r}
 pca_out <- prcomp(toy, center = TRUE)
+```
 
+Use the following keywords to parse the output instance:
+* principal directions: "rotation"
+* standard deviations a.k.a. singular values: "sdev"
+* PC scores: "x"
 
-# The singular values, PC scores and gene loadings are in the sdev, x and
-# rotation, respectively
-head(pca_out$sdev ** 2)
-pca_out$x
-pca_out$rotation
+```{r}
+pdir_pca <- pca_out$rotation
+pdir_pca[1:6,1:6]
 
+var_pca <- pca_out$sdev ** 2
+head(var_pca)
 
+scores_pca <- pca_out$x
+scores_pca[1:6,1:6]
+```
+
+```{r}
 # PCA centered and scaled
 pca_out_scaled <- prcomp(toy, center = TRUE, scale. = TRUE)
 ```
