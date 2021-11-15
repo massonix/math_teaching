@@ -230,7 +230,7 @@ To reduce the dimensionality, we will choose the number of PC that explains most
 
 ```{r}
 # Calculate percentage of variance explained (PVE):
-pve <- pca_out_scaled$sdev ** 2 / sum(pca_out$sdev ** 2) * 100
+pve <- pca_out_scaled$sdev ** 2 / sum(pca_out_scaled$sdev ** 2) * 100
 pve <- round(pve, 2)
 pve_df <- data.frame(principal_component = 1:length(pve), pve = pve)
 pve_gg <- pve_df %>%
